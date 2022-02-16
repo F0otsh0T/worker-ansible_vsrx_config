@@ -1,0 +1,13 @@
+{% set count = namespace(ipv4=0, ipv6=0) %}
+{% for PREFIX in PNET %}
+{% if PNET %}
+{% if PREFIX.inet == 4 %}
+{% set count.ipv4 = count.ipv4 + 1 %}
+
+{% endif %}
+{% if PREFIX.inet == 6 %}
+{% set count.ipv6 = count.ipv6 + 1 %}
+
+{% endif %}
+{% endif %}
+{% endfor %}

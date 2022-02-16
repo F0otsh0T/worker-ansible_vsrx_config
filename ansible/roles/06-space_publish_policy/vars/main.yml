@@ -1,0 +1,13 @@
+---
+
+##################################################
+# JUNOS Ansible Module Generic
+#
+CONNECTION_PORT: 443
+
+##################################################
+# Role Specific Variables
+#
+DEPLOYMENT_TYPE: "06-space_publish_policy"
+CONFIG_TYPE: "ems"
+

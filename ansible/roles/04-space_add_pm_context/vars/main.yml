@@ -1,0 +1,12 @@
+---
+
+##################################################
+# JUNOS Ansible Module Generic
+#
+CONNECTION_PORT: 443
+
+##################################################
+# Role Specific Variables
+#
+DEPLOYMENT_TYPE: "04-space_add_pm_context"
+CONFIG_TYPE: "ems"

@@ -1,0 +1,733 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Space EMS Tasks:
+#   - JUNOSSPACEASSIGNPMCONTEXT:
+#     > Log in to JUNOS Space
+#     > Assign and Link Polymorphic Address Variables
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+#
+  - name: CHECK//CONNECTIVITY
+    block:
+    - name: CheckNetConnectivity
+      wait_for:
+        host: "{{ SPACE_HOST }}"
+        port: "{{ SPACE_API_PORT }}"
+        timeout: 30
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# Galaxy.URI Juniper JUNOS Space Polymorphic Address and SD Policy
+################################################################################
+# 01. LOGIN TO JUNOS SPACE
+################################################################################
+#
+  - name: JUNOS_SPACE//LOGIN
+    block:
+    - name: JUNOSSPACELOGIN
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 200
+        follow_redirects: all
+        user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+        password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+        return_content: yes
+        validate_certs: no
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+      register: OUTPUTLOGIN
+    - name: DEBUGOUTPUTLOGINJSON
+      debug:
+        var: OUTPUTLOGIN.json
+  #      verbosity: 1
+    - name: DEBUGOUTPUTLOGIN
+      debug:
+        msg: "{{ OUTPUTLOGIN }}"
+    - name: DEBUGOUTPUTLOGIN
+      copy:
+        content: "{{ OUTPUTLOGIN }}"
+        dest: "{{ DEBUG_DIR }}deb.04_01-junos_space_login_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: DEBUGOUTPUTLOGINCOOKIE
+      copy:
+        content: "{{ OUTPUTLOGIN.set_cookie }}"
+        dest: "{{ OUTPUT_DIR }}output.04_01-junos_space_login_set_cookie_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: SETFACTOUTPUTLOGINCOOKIE
+      set_fact:
+        LOGIN_COOKIE: "{{ OUTPUTLOGIN.set_cookie }}"
+    - name: DEBUGSETFACTOUTPUTLOGINCOOKIE
+      debug:
+        var: LOGIN_COOKIE
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 02. GET DEVICE ID
+################################################################################
+#
+  - name: JUNOS_SPACE//DM-GET_DEVICES
+    block:
+    - name: DMGETDEVICES
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/device-management/devices?filter=(name%20eq%20'{{ inventory_hostname }}')"
+        method: GET
+        validate_certs: no
+        headers:
+          Accept: application/vnd.juniper.sd.device-management.devices+json;version=2;q=0.02
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: DMDEVICEID
+    - name: DEBUGDMDEVICEIDJSON
+      debug:
+        var: DMDEVICEID.json
+  #      verbosity: 1
+    - name: DEBUGDMDEVICEID
+      debug:
+        msg: "{{ DMDEVICEID }}"
+    - name: COPYDEBUGDMDEVICEID
+      copy:
+        content: "{{ DMDEVICEID }}"
+        dest: "{{ DEBUG_DIR }}deb.04_02-junos_space_get_devices_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: SETFACTDMDEVICEID
+      set_fact:
+        CONTEXT_DEVICE_ID: "{{ DMDEVICEID.json.devices.device[0].id }}"
+    - name: DEBUGSETFACTDMDEVICEID
+      debug:
+        msg: "{{ CONTEXT_DEVICE_ID }}"
+    - name: COPYDEBUGSETFACTDMDEVICEID
+      copy:
+        content: "{{ CONTEXT_DEVICE_ID }}"
+        dest: "{{ OUTPUT_DIR }}output.04_02-junos_space_get_devices_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 03. FORMAT ADDRESS VARIABLES FOR ADDRESS OBJECT ADD
+################################################################################
+#
+  - name: JUNOS_SPACE//SD-FORMAT_ADDRESS_VAR
+    block:
+    - name: FORMATADDRESSVAR
+      template:
+        src: "roles/{{ DEPLOYMENT_TYPE }}/templates/{{ CONFIG_TYPE }}-address_var.j2"
+#        src: ems-address_var.j2
+#        src: "/var/tmp/git/afw-worker-nc_vsrx_cnc/ansible/roles/04-space_add_pm_context/templates/ems-address_var.j2"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var.{{ inventory_hostname }}"
+      register: OUTPUTFORMATADDRESSVAR
+    - name: PRINTOUTPUTFORMATADDRESSVAR
+      debug:
+        var: OUTPUTFORMATADDRESSVAR
+    - name: COPYOUTPUTFORMATADDRESSVAR
+      copy:
+        content: "{{ OUTPUTFORMATADDRESSVAR }}"
+        dest: "{{ DEBUG_DIR }}deb.04_03-junos_space_format_address_var_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: INPUTADDRESSVAR
+      include_vars:
+        file: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var.{{ inventory_hostname }}"
+        name: READADDRESSVAR
+    - name: PRINTINPUTADDRESSVAR
+      debug:
+        var: READADDRESSVAR
+    - name: SETFACTADDRESSVAR
+      set_fact:
+        ADDRESS_VAR: "{{ READADDRESSVAR.ADDRESS_INPUT }}"
+    - name: PRINTSETFACTADDRESSVAR
+      debug:
+        var: ADDRESS_VAR
+    - name: COPYSETFACTADDRESSVAR
+      copy:
+        content: "{{ ADDRESS_VAR }}"
+        dest: "{{ OUTPUT_DIR }}output.04_03-junos_space_format_address_var_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 04. CREATE ADDRESSES
+################################################################################
+#
+  - name: JUNOS_SPACE//SD-CREATE_ADDRESS
+    block:
+    - name: CREATEADDRESS
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/json"
+          Content-Type: "application/json"
+          Cookie: "{{ LOGIN_COOKIE }}"
+        body_format: json
+        body: >
+          {
+          "address": {
+            "definition_type": "CUSTOM",
+            "associated_metadata": "",
+            "name": "{{ item.name }}",
+            "description": "{{ item.description }}",
+            "address_type": "NETWORK",
+            "address_version": "{{ item.address_version }}",
+            "ip_address": "{{ item.ip_address }}"
+            }
+          }
+      loop: "{{ ADDRESS_VAR }}"
+      register: OUTPUTCREATEADDRESS
+    - name: DEBUGOUTPUTCREATEADDRESS
+      debug:
+        var: OUTPUTCREATEADDRESS
+    - name: COPYOUTPUTCREATEADDRESS
+      copy:
+        content: "{{ OUTPUTCREATEADDRESS }}"
+        dest: "{{ DEBUG_DIR }}deb.04_04-junos_space_create_address_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: DEBUGOUTPUTCREATEADDRESS.json.address.name
+      debug:
+        var: OUTPUTCREATEADDRESS.json.address.name
+    - name: DEBUGOUTPUTCREATEADDRESS.json.address.uuid
+      debug:
+        var: OUTPUTCREATEADDRESS.json.address.uuid
+    - name: FORMATADDRESSID
+      template:
+        src: "roles/{{ DEPLOYMENT_TYPE }}/templates/{{ CONFIG_TYPE }}-address_var_id.j2"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var_id.{{ inventory_hostname }}"
+      register: OUTPUTFORMATADDRESSIDVAR
+    - name: DEBUGFORMATADDRESSID
+      debug:
+        var: OUTPUTFORMATADDRESSIDVAR
+    - name: INPUTFORMATADDRESSIDVAR
+      include_vars:
+        file: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var_id.{{ inventory_hostname }}"
+        name: READADDRESSIDVAR
+    - name: DEBUGREADDRESSIDVAR
+      debug:
+        var: READADDRESSIDVAR
+    - name: SETFACTADDRESSIDVAR
+      set_fact:
+        ADDRESS_ID_VAR: "{{ READADDRESSIDVAR.ADDRESS_ID }}"
+    - name: PRINTSETFACTADDRESSIDVAR
+      debug:
+        var: ADDRESS_ID_VAR
+    - name: COPYSETFACTADDRESSIDVAR
+      copy:
+        content: "{{ ADDRESS_VAR }}"
+        dest: "{{ OUTPUT_DIR }}output.04_04-junos_space_format_address_var_id_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+##
+################################################################################
+# TEMPORARY DEBUG
+################################################################################
+##
+  - name: TEMP/DEBUG
+    block:
+################################################################################
+# If 500 Response from "JUNOS_SPACE//SD-CREATE_ADDRESS", get and format ADDRESS OBJECT ID
+    - name: TEMPDEBUG
+      debug:
+        var: item.status
+#      with_items: "{{ OUTPUTCREATEADDRESS.results }}"
+      loop: "{{ OUTPUTCREATEADDRESS.results }}"
+      register: OUTPUTTEMPDEBUG
+    - name: DEBUGTEMPDEBUG
+      debug:
+        var: OUTPUTTEMPDEBUG
+
+################################################################################
+# 05. GET ADDRESS OBJECT NAME AND ID - NEEDED FOR IDEMPOTENCY
+################################################################################
+# If 500 Response from "JUNOS_SPACE//SD-CREATE_ADDRESS", get and format ADDRESS OBJECT ID
+  - name: SPACE//SD_GET_ADDRESS_ID_500
+    block:
+    - name: GETADDRESSID500
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/address-management/addresses?filter=(name%20eq%20'{{ item.name }}')"
+#        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/address-management/addresses?filter=(name%20eq%20'{{ SPACE_API_LOGIN_AUTH_USER }}_{{ item.name }}')"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        validate_certs:  no
+        headers:
+          Accept: application/vnd.juniper.sd.address-management.address-refs+json;version=1;q=0.01
+          Cookie: "{{ LOGIN_COOKIE }}"
+      loop: "{{ ADDRESS_ID_VAR }}"
+      register: OUTPUTGETADDRESSID500
+#      when: OUTPUTCREATEADDRESS.results.status == 500
+      when: item.status == "500"
+    - name: DEBUGOUTPUTGETADDRESSID500
+      debug:
+        var: OUTPUTGETADDRESSID500
+    - name: COPYOUTPUTGETADDRESSID500
+      copy:
+        content: "{{ OUTPUTGETADDRESSID500 }}"
+        dest: "{{ DEBUG_DIR }}deb.04_05_01-junos_space_get_address_id_500_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: FORMATADDRESSID500
+      template:
+        src: "roles/{{ DEPLOYMENT_TYPE }}/templates/{{ CONFIG_TYPE }}-address_var_id_500.j2"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var_id_500.{{ inventory_hostname }}"
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      register: OUTPUTFORMATADDRESSID500VAR
+#      when: OUTPUTGETADDRESSID500 is defined
+      when: item.json.addresses.address[0].id is defined
+    - name: DEBUGOUTPUTFORMATADDRESSID500VAR
+      debug:
+        var: OUTPUTFORMATADDRESSID500VAR
+      when: OUTPUTGETADDRESSID500 is defined
+    - name: COPYOUTPUTFORMATADDRESSID500VAR
+      copy:
+        content: "{{ OUTPUTFORMATADDRESSID500VAR }}"
+        dest: "{{ DEBUG_DIR }}deb.04_05_02-junos_space_format_address_id_500_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      when: item.json.addresses.address[0].id is defined
+    - name: INPUTFORMATADDRESSID500
+      include_vars:
+        file: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var_id_500.{{ inventory_hostname }}"
+        name: READADDRESSID500VAR
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      when: item.json.addresses.address[0].id is defined
+    - name: DEBUGREADADDRESSID500VAR
+      debug:
+        var: READADDRESSID500VAR
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      when: item.json.addresses.address[0].id is defined
+    - name: SETFACTADDRESSID500
+      set_fact:
+        GET_ADDRESS_ID: "{{ READADDRESSID500VAR.ADDRESS_ID }}"
+  #    when: SpaceGetAddressID.json.addresses.address[0].id|d
+  #    when: SpaceGetAddressID.json.addresses.address[0].id is defined
+#      when: OUTPUTCREATEADDRESS.status == 500
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      when: item.json.addresses.address[0].id is defined
+      ignore_errors: True
+      register: OUTPUTSETFACTADDRESSID500
+    - name: DEBUGOUTPUTSETFACTADDRESSID500
+      debug:
+        var: OUTPUTSETFACTADDRESSID500
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      when: item.json.addresses.address[0].id is defined
+      ignore_errors: True
+    - name: COPYOUTPUTSETFACTADDRESSID500
+      copy:
+        content: "{{ OUTPUTSETFACTADDRESSID500 }}"
+        dest: "{{ DEBUG_DIR }}deb.04_05_03-junos_space_format_address_id_500_set_fact_get_address_id_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      when: item.json.addresses.address[0].id is defined
+      ignore_errors: True
+    - name: COPYSETFACTADDRESSID500
+      copy:
+        content: "{{ GET_ADDRESS_ID }}"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var_id_500_set_fact_get_address_id.{{ inventory_hostname }}"
+      loop: "{{ OUTPUTGETADDRESSID500.results }}"
+      when: item.json.addresses.address[0].id is defined
+      ignore_errors: True
+#    loop: "{{ ADDRESS_ID_VAR }}"
+#    when: item.status == "500"
+#    ignore_errors: yes
+#    when:
+    ignore_errors: yes
+#
+################################################################################
+# If 200 Response from "JUNOS_SPACE//SD-CREATE_ADDRESS", format ADDRESS OBJECT ID
+  - name: SPACE//SD_GET_ADDRESS_ID_200
+    block:
+    - name: SETFACTADDRESSID200
+      set_fact:
+        GET_ADDRESS_ID: "{{ ADDRESS_ID_VAR }}"
+  #    when: SpaceCreateAddress.json.address.id|d
+  #    when: SpaceCreateAddress.json.address.id is defined
+      with_items: "{{ ADDRESS_ID_VAR }}"
+      when: item.status == "200"
+      ignore_errors: True
+      register: OUTPUTSETFACTADDRESSID200
+    - name: DEBUGSETFACTADDRESSID200
+      debug:
+        var: OUTPUTSETFACTADDRESSID200
+      loop: "{{ ADDRESS_ID_VAR }}"
+      when: item.status == "200"
+    - name: COPYSETFACTADDRESSID200
+      copy:
+        content: "{{ GET_ADDRESS_ID }}"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_var_id_200_set_fact_get_address_id.{{ inventory_hostname }}"
+      loop: "{{ ADDRESS_ID_VAR }}"
+      when: item.status == "200"
+    - name: COPYDEBUGSETFACTADDRESSID200
+      copy:
+        content: "{{ OUTPUTSETFACTADDRESSID200 }}"
+        dest: "{{ DEBUG_DIR }}debug.04_05_01-junos_space_set_address_id_200_set_fact_get_address_id_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+      loop: "{{ ADDRESS_ID_VAR }}"
+      when: item.status == "200"
+#    when: item.status == "200"
+#    ignore_errors: yes
+#    when:
+    ignore_errors: yes
+
+################################################################################
+# 06. FORMAT ADDRESS OBJECT BODY FOR ADDRESS GROUP API ADD
+################################################################################
+# Take "GET_ADDRESS_ID" and format contents for ADDRESS GROUP add with API Body
+  - name: JUNOS_SPACE//SD-FORMAT_ADDRESS_GROUP_BODY
+    block:
+    - name: FORMATADDRESSBODY
+      template:
+        src: "roles/{{ DEPLOYMENT_TYPE }}/templates/{{ CONFIG_TYPE }}-address_body.j2"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_body.{{ inventory_hostname }}"
+      register: OUTPUTFORMATADDRESSBODY
+    - name: DEBUGFORMATADDRESSBODY
+      debug:
+        var: OUTPUTFORMATADDRESSBODY
+    - name: COPYDEBUGFORMATADDRESSBODY
+      copy:
+        content: "{{ OUTPUTFORMATADDRESSBODY }}"
+        dest: "{{ DEBUG_DIR }}deb.04_06-junos_space_format_address_group_body_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: SETFACTREADBODYFILE
+      set_fact:
+#        APIADDRESSBODY: "{{ lookup('file', '{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_body') }}"
+        APIADDRESSBODY: "{{ lookup('file', '{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-address_body.{{ inventory_hostname }}') }}"
+      register: OUTPUTSETFACTREADBODYFILE
+    - name: DEBUGOUTPUTSETFACTREADBODYFILE
+      debug:
+        var: OUTPUTSETFACTREADBODYFILE
+    - name: DEBUGAPIADDRESSBODYFILE
+      debug:
+        var: APIADDRESSBODY
+    - name: COPYDEBUGAPIADDRESSBODYFILE
+      copy:
+        content: "{{ APIADDRESSBODY }}"
+        dest: "{{ OUTPUT_DIR }}output.04_06-junos_space_format_address_group_body_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+    ignore_errors: yes
+
+################################################################################
+# 07. CREATE ADDRESS GROUP
+################################################################################
+#
+  - name: JUNOS_SPACE//SD-CREATE_ADDRESS_GROUP
+    block:
+    - name: CREATEADDRESSGROUPXML
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/address-management/addresses"
+#        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+#          Accept: "application/vnd.juniper.sd.address-management.address+xml;version=1;q=0.01"
+#          Accept: "application/json"
+#          Content-Type: "application/vnd.juniper.sd.address-management.address+json;version=1;charset=UTF-8"
+          Content-Type: "application/vnd.juniper.sd.address-management.address+xml;version=1;charset=UTF-8"
+#          Content-Type: "application/json"
+          Cookie: "{{ LOGIN_COOKIE }}"
+#        body_format: json
+        body: >
+          <?xml version="1.0" encoding="UTF-8"?>
+          <address>
+          <name>PROTECTED_NET_{{ LOCATION }}_{{ VVVV }}_{{ PPP }}_GROUP</name>
+          <members>
+          {{ APIADDRESSBODY }}
+          </members>
+          <address-type>GROUP</address-type>
+          <definition-type>CUSTOM</definition-type>
+          </address>
+  #    with_dict: {{ PROTECTED_NET_DICT }}
+      register: OUTPUTCREATEADDRESSGROUPXML
+    - name: PRINTOUTPUTCREATEADDRESSGROUPXML
+      debug:
+        var: OUTPUTCREATEADDRESSGROUPXML
+    - name: COPYOUTPUTCREATEADDRESSGROUPXML
+      copy:
+        content: "{{ OUTPUTCREATEADDRESSGROUPXML }}"
+        dest: "{{ DEBUG_DIR }}deb.04_07-junos_space_add_address_group_xml_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 08. GET ADDRESS GROUP OBJECT NAME AND ID - NEEDED FOR IDEMPOTENCY
+################################################################################
+# If 500 Response from "JUNOS_SPACE//SD-CREATE_ADDRESS_GROUP", get and format ADDRESS GROUP OBJECT ID
+  - name: SPACE//SD_GET_ADDRESS_GROUP_ID_500
+    block:
+    - name: GETADDRESSGROUPID500
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/address-management/addresses?filter=(name%20eq%20'PROTECTED_NET_{{LOCATION}}_{{ VVVV }}_{{ PPP }}_GROUP')"
+#        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/address-management/addresses?filter=(name%20eq%20'{{ SPACE_API_LOGIN_AUTH_USER }}_PROTECTED_NET_{{LOCATION}}_{{ PPP }}')"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        validate_certs:  no
+        headers:
+          Accept: application/vnd.juniper.sd.address-management.address-refs+json;version=1;q=0.01
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: OUTPUTGETADDRESSGROUPID500
+    - name: DEBUGOUTPUTGETADDRESSGROUPID500
+      debug:
+        var: OUTPUTGETADDRESSGROUPID500
+    - name: SETFACTADDRESSGROUPID500
+      set_fact:
+        ADDRESSGROUPXML_ID: "{{ OUTPUTGETADDRESSGROUPID500.json.addresses.address[0].id }}"
+    - name: COPYSETFACTADDRESSGROUPXMLID
+      copy:
+        content: "{{ ADDRESSGROUPXML_ID }}"
+        dest: "{{ OUTPUT_DIR }}output.04_08-junos_space_add_address_group_xml_id_500_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: SETFACTADDRESSGROUPXMLNAME
+      set_fact:
+        ADDRESSGROUPXML_NAME: "{{ OUTPUTGETADDRESSGROUPID500.json.addresses.address[0].name }}"
+#      when: OUTPUTCREATEADDRESSGROUPXML.status == 500
+    - name: COPYSETFACTADDRESSGROUPXMLNAME
+      copy:
+        content: "{{ ADDRESSGROUPXML_NAME }}"
+        dest: "{{ OUTPUT_DIR }}output.04_08-junos_space_add_address_group_xml_name_500_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    when: OUTPUTCREATEADDRESSGROUPXML.status == 500
+#    ignore_errors: yes
+#
+################################################################################
+# If 200 Response from "JUNOS_SPACE//SD-CREATE_ADDRESS_GROUP", format ADDRESS GROUP OBJECT ID
+  - name: SPACE//SD_GET_ADDRESS_GROUP_ID_200
+    block:
+    - name: SETFACTADDRESSGROUPID200
+      set_fact:
+        ADDRESSGROUPXML_ID: "{{ OUTPUTCREATEADDRESSGROUPXML.json.address.id }}"
+    - name: COPYSETFACTADDRESSGROUPXMLID
+      copy:
+        content: "{{ ADDRESSGROUPXML_ID }}"
+        dest: "{{ OUTPUT_DIR }}output.04_08-junos_space_add_address_group_xml_id_200_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: SETFACTADDRESSGROUPXMLNAME
+      set_fact:
+        ADDRESSGROUPXML_NAME: "{{ OUTPUTCREATEADDRESSGROUPXML.json.address.name }}"
+    - name: COPYSETFACTADDRESSGROUPXMLNAME
+      copy:
+        content: "{{ ADDRESSGROUPXML_NAME }}"
+        dest: "{{ OUTPUT_DIR }}output.04_08-junos_space_add_address_group_xml_name_200_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    when: OUTPUTCREATEADDRESSGROUPXML.status == 200
+#    ignore_errors: yes
+#
+################################################################################
+# 09. GET VARIABLE OBJECT ID
+################################################################################
+#
+  - name: JUNOS_SPACE//SD-GET_VARIABLE_OBJECT_ID
+    block:
+    - name: SDGETVARIABLEOBJECTID
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/variable-management/variable-definitions?filter=(name%20eq%20'{{ SPACE_API_VAR_OBJECT_NAME }}')"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: application/vnd.juniper.sd.variable-management.variable-definitions+json;version=1;q=0.01
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: VARIABLEOBJECTID
+    - name: DEBUGVARIABLEOBJECTIDJSON
+      debug:
+        var: VARIABLEOBJECTID.json
+  #      verbosity: 1
+    - name: DEBUGVARIABLEOBJECTID
+      debug:
+        msg: "{{ VARIABLEOBJECTID }}"
+    - name: COPYDEBUGVARIABLEOBJECTID
+      copy:
+        content: "{{ VARIABLEOBJECTID }}"
+        dest: "{{ DEBUG_DIR }}deb.04_09-junos_space_get_variable_id_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: SETFACTVARIABLEOBJECTID
+      set_fact:
+        CONTEXT_VAR_OBJECT_ID: "{{ VARIABLEOBJECTID.json['variable-definitions']['variable-definition'][0].id }}"
+    - name: DEBUGSETFACTVARIABLEOBJECTID
+      debug:
+        msg: "{{ CONTEXT_VAR_OBJECT_ID }}"
+    - name: COPYDEBUGSETFACTVARIABLEOBJECTID
+      copy:
+        content: "{{ CONTEXT_VAR_OBJECT_ID }}"
+        dest: "{{ OUTPUT_DIR }}output.04_09-junos_space_get_variable_id_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 10. GET VARIABLE OBJECT CONFIG
+################################################################################
+#
+  - name: JUNOS_SPACE//SD-GET_VARIABLE_OBJECT_CONFIG
+    block:
+    - name: SDGETVARIABLEOBJECTCONFIG
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/variable-management/variable-definitions/{{ CONTEXT_VAR_OBJECT_ID }}"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: application/vnd.juniper.sd.variable-management.variable-definition+json;version=1;q=0.01
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: OUTPUTSDVARIABLEOBJECTCONFIG
+    - name: DEBUGOUTPUTSDVARIABLEOBJECTCONFIGJSON
+      debug:
+        var: OUTPUTSDVARIABLEOBJECTCONFIG.json
+  #      verbosity: 1
+    - name: DEBUGOUTPUTSDVARIABLEOBJECTCONFIG
+      debug:
+        msg: "{{ OUTPUTSDVARIABLEOBJECTCONFIG }}"
+    - name: COPYDEBUGOUTPUTSDVARIABLEOBJECTCONFIG
+      copy:
+        content: "{{ OUTPUTSDVARIABLEOBJECTCONFIG }}"
+        dest: "{{ DEBUG_DIR }}deb.04_10-junos_space_get_variableobjectconfig_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: SETFACTSDVARIABLEOBJECTCONFIG
+      set_fact:
+        CFG_CONTEXT_OBJECT_CONFIG: "{{ OUTPUTSDVARIABLEOBJECTCONFIG.json['variable-definition'] }}"
+    - name: DEBUGSETFACTSDVARIABLEOBJECTCONFIG
+      debug:
+        msg: "{{ CFG_CONTEXT_OBJECT_CONFIG }}"
+    - name: COPYDEBUGSETFACTSDVARIABLEOBJECTCONFIG
+      copy:
+        content: "{{ CFG_CONTEXT_OBJECT_CONFIG }}"
+        dest: "{{ OUTPUT_DIR }}output.04_10-junos_space_get_variableobjectconfig_context_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 11. BUILD NEW CONTEXT VARIABLE DATA FOR CONFIG
+################################################################################
+# Build new Data Object for Context Config
+  - name: JUNOS_SPACE//SD-BUILD_NEW_VARIABLE_OBJECT_CONFIG
+    block:
+    - name: SETFACTSDCONFIGCONTEXTDATAOBJECT
+      set_fact:
+        CFG_CONTEXT_DATA:
+          - >
+            {
+              "device": {
+                "moid": "{{ CONTEXT_DEVICE_ID }}",
+                "name": "{{ inventory_hostname }}"
+              },
+              "variable-value-detail": {
+                "name": "{{ ADDRESSGROUPXML_NAME }}",
+                "variable-value": "{{ ADDRESSGROUPXML_ID }}"
+              }
+            }
+    - name: DEBUGSDCONFIGCONTEXTDATAOBJECT
+      debug:
+        var: CFG_CONTEXT_DATA
+  #      verbosity: 1
+    - name: COPYSDCONFIGCONTEXTDATAOBJECT
+      copy:
+        content: "{{ CFG_CONTEXT_DATA }}"
+        dest: "{{ OUTPUT_DIR }}output.04_11_01-junos_space_cfg_context_data_object_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: SETFACTSDCONTEXTCONFIGAPPENDDATAOBJECT
+      set_fact:
+        CFG_CONTEXT_CONFIG_LIST: "{{ CFG_CONTEXT_OBJECT_CONFIG['variable-values-list']['variable-values'] + CFG_CONTEXT_DATA }}"
+    - name: DEBUGSDCONTEXTCONFIGAPPENDDATAOBJECT
+      debug:
+        var: CFG_CONTEXT_CONFIG_LIST
+  #      verbosity: 1
+    - name: COPYSDCONTEXTCONFIGAPPENDDATAOBJECT
+      copy:
+        content: "{{ CFG_CONTEXT_CONFIG_LIST }}"
+        dest: "{{ OUTPUT_DIR }}output.04_11_02-junos_space_append_cfg_context_data_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 12. BUILD NEW CONTEXT VARIABLE DATA FOR CONFIG CONTEXT
+################################################################################
+# This will be used to update Variable Object
+  - name: SPACE//SD-BUILD_NEW_CONTEXT_VARIABLE_OBJECT
+    block:
+    - name: SETFACTSDBUILDNEWCONTEXTVARIABLEOBJECT
+      set_fact:
+        CFG_CONTEXT_VAR_CONFIG: >
+          {
+            "variable-definition": {
+              "default-value-detail": {
+                "default-name": "{{ CFG_CONTEXT_OBJECT_CONFIG['default-value-detail']['default-name'] }}",
+                "default-value": "{{ CFG_CONTEXT_OBJECT_CONFIG['default-value-detail']['default-value'] }}"
+              },
+              "name": "{{ SPACE_API_VAR_OBJECT_NAME }}",
+              "edit-version": "{{ CFG_CONTEXT_OBJECT_CONFIG['edit-version'] }}",
+              "type": "ADDRESS",
+              "variable-values-list": {
+                "variable-values": {{ CFG_CONTEXT_CONFIG_LIST }}
+              }
+            }
+          }
+    - name: DEBUGSDBUILDNEWCONTEXTVARIABLEOBJECT
+      debug:
+        var: CFG_CONTEXT_VAR_CONFIG
+  #      verbosity: 1
+    - name: COPYSETFACTSDBUILDNEWCONTEXTVARIABLEOBJECT
+      copy:
+        content: "{{ CFG_CONTEXT_VAR_CONFIG }}"
+        dest: "{{ OUTPUT_DIR }}output.04_12-junos_space_build_cfg_context_object_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 13. ADD/UPDATE POLYMORPHIC CONTEXT VARIABLES OBJECT WITH NEW CONTEXT
+################################################################################
+# Update the existing Polymorphic Context Config Object
+# with the new appended Context Config Object
+  - name: SPACE//SD-UPDATE_CONTEXT_VARIABLE_OBJECT
+    block:
+    - name: CFG-Update-Context-VariableObject
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/variable-management/variable-definitions/{{ CONTEXT_VAR_OBJECT_ID }}"
+        method: PUT
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: application/vnd.juniper.sd.variable-management.variable-definition+json;version=1;q=0.01
+          Content-type: application/vnd.juniper.sd.variable-management.variable-definition+json;version=1;charset=UTF-8
+          Cookie: "{{ LOGIN_COOKIE }}"
+        body_format: json
+        body: "{{ CFG_CONTEXT_VAR_CONFIG }}"
+      register: CFG_CONTEXT_VAR_CONFIG_UPDATE
+    - name: Debug-CFG-Update-Context-VariableObject
+      debug:
+        var: CFG_CONTEXT_VAR_CONFIG_UPDATE.content
+  #      verbosity: 1
+    - name: Debug-CFG-Context-VariableObject
+      debug:
+        var: CFG_CONTEXT_VAR_CONFIG_UPDATE
+  #      verbosity: 1
+    - name: Copy-Debug-CFG-Context-VariableObject
+      copy:
+        content: "{{ CFG_CONTEXT_VAR_CONFIG_UPDATE }}"
+        dest: "{{ DEBUG_DIR }}deb.04_13-junos_space_update_cfg_context_object_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+#    when:
+#    ignore_errors: yes
+
+################################################################################
+# 14. LOGOUT
+################################################################################
+#
+  - name: JUNOS_SPACE//LOGOUT
+    block:
+    - name: JUNOSSpace-Logout
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: OUTPUTLOGOUT
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT
+#    when:
+    ignore_errors: yes
+
+

@@ -1,0 +1,243 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+  vars:
+    LOCATION: "TST6B"
+    STACK: "EXN"
+    PNET:
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.88.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.89.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "2606:ae00:e200:103::/64"
+        inet: 6
+    PROTECTED_NET:
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.88.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.89.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "2606:ae00:e200:103::/64"
+        inet: 6
+    USER: "{{username}}"
+    PASSWORD: "@!T3stME!"
+
+  tasks:
+################################################################################
+# LOGIN
+################################################################################
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: "{{USER}}"
+        password: "{{PASSWORD}}"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+################################################################################
+# FORMAT ADDRESS OBJECT(S)
+################################################################################
+    - name: FORMATADDRESSVAR
+      template: src=address_var.j2 dest=address_var.log
+      register: OUTPUTFORMATADDRESSVAR
+
+    - name: PRINTOUTPUTFORMATADDRESSVAR
+      debug:
+        var: OUTPUTFORMATADDRESSVAR
+
+    - name: INPUTADDRESSVAR
+      include_vars:
+        file: address_var.log
+        name: READADDRESSVAR
+
+    - name: PRINTINPUTADDRESSVAR
+      debug:
+        var: READADDRESSVAR
+
+    - name: SETADDRESSVAR
+      set_fact:
+        ADDRESS_VAR: "{{ READADDRESSVAR.json }}"
+
+    - name: PRINTSETADDRESSVAR
+      debug:
+        var: ADDRESS_VAR
+
+################################################################################
+# CREATE ADDRESSES
+################################################################################
+    - name: CREATEADDRESS
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/json"
+          Content-Type: "application/json"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+          "address": {
+            "definition_type": "CUSTOM",
+            "associated_metadata": "",
+            "name": "{{ item.name }}",
+            "description": "{{ item.description }}",
+            "address_type": "NETWORK",
+            "address_version": "{{ item.address_version }}",
+            "ip_address": "{{ item.ip_address }}"
+            }
+          }
+      loop: "{{ ADDRESS_VAR }}"
+      register: OUTPUTCREATEADDRESS
+
+    - name: DEBUGOUTPUTCREATEADDRESS
+      debug:
+        var: OUTPUTCREATEADDRESS
+
+################################################################################
+# DEBUG LOOP
+################################################################################
+#    - name: DEBUG_LOOP
+#      debug:
+#        msg:
+#          - "{{ item.json.address.name }}"
+#          - "{{ item.json.address.uuid }}"
+#          - "{{ item.json.address.uri }}"
+#      loop: "{{ OUTPUTCREATEADDRESS.results }}"
+
+################################################################################
+# FORMAT ADDRESS OBJECT BODY FOR API
+################################################################################
+    - name: FORMATADDRESSBODY
+      template: src=address_body.j2 dest=address_body.log
+      register: OUTPUTFORMATADDRESSBODY
+
+    - name: DEBUGFORMATADDRESSBODY
+      debug:
+        var: OUTPUTFORMATADDRESSBODY
+################################################################################
+    - name: SETFACTREADBODYFILE
+      set_fact:
+        APIADDRESSBODY: "{{ lookup('file', 'address_body.log') }}"
+      register: OUTPUTSETFACTREADBODYFILE
+
+    - name: DEBUGOUTPUTSETFACTREADBODYFILE
+      debug:
+        var: OUTPUTSETFACTREADBODYFILE
+
+    - name: DEBUGAPIADDRESSBODYFILE
+      debug:
+        var: APIADDRESSBODY
+
+################################################################################
+# STORE ADDRESS OBJECT NAMES AND UUIDS
+################################################################################
+#    - name: GETADDRESSOBJECTID
+#      uri:
+#        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses?filter=(name%20eq%20'{{ item.name }}')"
+#        method: GET
+#        follow_redirects: all
+#        return_content: yes
+#        validate_certs:  no
+#        headers:
+#          Accept: application/vnd.juniper.sd.address-management.address-refs+json;version=1;q=0.01
+#          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+#      loop: "{{ ADDRESS_VAR }}"
+#      register: OUTPUTGEADDRESSOBJECTID
+#
+#    - name: PRINTOUTPUTGEADDRESSOBJECTID
+#      debug:
+#        var: OUTPUTGEADDRESSOBJECTID
+
+################################################################################
+# CREATE ADDRESS GROUP
+################################################################################
+
+    - name: CREATEADDRESSGROUPXML
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses"
+#        url: "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+#          Accept: "application/vnd.juniper.sd.address-management.address+xml;version=1;q=0.01"
+#          Accept: "application/json"
+#          Content-Type: "application/vnd.juniper.sd.address-management.address+json;version=1;charset=UTF-8"
+          Content-Type: "application/vnd.juniper.sd.address-management.address+xml;version=1;charset=UTF-8"
+#          Content-Type: "application/json"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+#        body_format: json
+        body: >
+          <?xml version="1.0" encoding="UTF-8"?>
+          <address>
+          <name>{{USER}}_PROTECTED_NET_{{LOCATION}}_{{STACK}}</name>
+          <members>
+          {{ APIADDRESSBODY }}
+          </members>
+          <address-type>GROUP</address-type>
+          <definition-type>CUSTOM</definition-type>
+          </address>
+  #    with_dict: {{ PROTECTED_NET_DICT }}
+      register: OUTPUTCREATEADDRESSGROUPXML
+
+    - name: PRINTOUTPUTCREATEADDRESSGROUPXML
+      debug:
+        var: OUTPUTCREATEADDRESSGROUPXML
+
+    - name: SETFACTADDRESSGROUPXMLID
+      set_fact:
+        ADDRESSGROUPXML_ID: "{{ OUTPUTCREATEADDRESSGROUPXML.json.address.id }}"
+
+    - name: SETFACTADDRESSGROUPXMLNAME
+      set_fact:
+        ADDRESSGROUPXML_NAME: "{{ OUTPUTCREATEADDRESSGROUPXML.json.address.name }}"
+
+################################################################################
+# LOGOUT
+################################################################################
+    - name: LOGOUT
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+      register: OUTPUTLOGOUT
+
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT

@@ -1,0 +1,25 @@
+---
+
+##################################################
+# LOG & OUTPUT
+#
+CFG_DIR: log/config/
+DEBUG_DIR: log/debug/
+LOG_DIR: log/
+OUTPUT_DIR: log/output/
+
+##################################################
+# JUNOS Ansible Module Generic
+#
+NETCONF_PORT: 22
+
+##################################################
+# Role Specific Variables
+#
+DEPLOYMENT_TYPE: "03-cfgpolicy"
+CONFIG_TYPE: "policy"
+
+NODE_HOSTNAME: ""
+NODE_FXP0: ""
+NODE_FXP0_MASK: ""
+INT0_IP_V4_GW: ""

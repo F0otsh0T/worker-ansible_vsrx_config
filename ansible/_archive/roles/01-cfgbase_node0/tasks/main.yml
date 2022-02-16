@@ -1,0 +1,18 @@
+---
+################################################################################
+# YAML with Tasks - By Automation User // MyUser
+################################################################################
+#
+################################################################################
+#  tasks:
+##########
+- name: CheckNetConfConnectivityNode0
+  include_role:
+    name: 00-common
+    tasks_from: galaxy-wait_for_netconf_60.yml
+  tags:
+    - CheckNetConf
+- name: ConfigvSRXBaseNode0
+  include_tasks: juniper_junos_config_overwrite.yml
+  tags:
+    - ConfigvSRXBaseNode0

@@ -1,0 +1,22 @@
+---
+
+##################################################
+# JUNOS Ansible Module Generic
+#
+NETCONF_PORT: 22
+
+##################################################
+# Role Specific Variables
+#
+DEPLOYMENT_TYPE: "02-cfglicense"
+CONFIG_TYPE: "license"
+
+
+
+
+
+
+
+
+
+

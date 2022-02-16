@@ -1,0 +1,4 @@
+DEVICES:
+{% for DEVICE in CONTEXT_DEVICE_ID %}
+  - id: {{ DEVICE.id}}
+{% endfor %}

@@ -1,0 +1,46 @@
+# E.g.
+#
+#zsde1frwl01cnc001 ansible_host=172.17.32.191 os_vmi_c2x=zsde1frwl01cnc__1
+#^^^^^^^^^^^^^^^^^ {{ inventory_hostname }}
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^ {{ ansible_[/deprecated/ssh]_host }}
+#                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ {{ os_vmi_c2x }}
+
+#################################
+### HA/Active-Active Initial ###
+#################################
+
+[node0]
+###################
+# ZSDE1 TEST VSRX #
+###################
+#zsde1frwl01tst001 ansible_host=172.20.216.14
+####################
+# ZTST6B TEST VSRX #
+####################
+ztst06frwl01tst001 ansible_host=10.10.169.232
+##########
+# TST NC #
+##########
+#ztst52afrwl01cnc001 ansible_host=10.10.81.198
+#ztst52bfrwl01cnc001 ansible_host=10.10.86.70
+#ztst52cfrwl01cnc001 ansible_host=10.10.88.70
+#ztst52dfrwl01cnc001 ansible_host=10.10.90.70
+#ztst52efrwl01cnc001 ansible_host=10.10.92.70
+
+[node1]
+###################
+# ZSDE1 TEST VSRX #
+###################
+#zsde1frwl01tst002 ansible_host=172.20.216.20
+####################
+# ZTST6B TEST VSRX #
+####################
+ztst06frwl01tst002 ansible_host=10.10.169.230
+##########
+# TST NC #
+##########
+#ztst52afrwl01cnc002 ansible_host=10.10.81.199
+#ztst52bfrwl01cnc002 ansible_host=10.10.86.71
+#ztst52cfrwl01cnc002 ansible_host=10.10.88.71
+#ztst52dfrwl01cnc002 ansible_host=10.10.90.71
+#ztst52efrwl01cnc002 ansible_host=10.10.92.71

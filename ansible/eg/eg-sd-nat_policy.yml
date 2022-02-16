@@ -1,0 +1,83 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: CREATENATPOLICY
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/policy-management/nat/policies"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.policy-management.nat.policy+json;version=1;q=0.01"
+          Content-Type: "application/vnd.juniper.sd.policy-management.nat.policy+json;version=1;charset=UTF-8"
+#          Accept: "application/vnd.juniper.sd.policy-management.nat.policy+xml;version=1;q=0.01"
+#          Content-Type: "application/vnd.juniper.sd.policy-management.nat.policy+xml;version=1;charset=UTF-8"
+          Access-Control: createNATPolicy
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+            "policy" : {
+              "name" : "MNS-GLOBAL-API-NAT",
+              "policy-position": "PRE",
+              "policy-state": "FINAL",
+              "policy-type": "GLOBAL",
+              "address-type" : "GROUP",
+              "definition-type" : "CUSTOM"
+            }
+          }
+  #    with_dict: {{ PROTECTED_NET_DICT }}
+      register: OUTPUTCREATENATPOLICY
+
+    - name: PRINTOUTPUTCREATENATPOLICY
+      debug:
+        var: OUTPUTCREATENATPOLICY
+
+    - name: SETFACTNATPOLICYID
+      set_fact:
+        NATPOLICYID: "{{ OUTPUTCREATENATPOLICY.policy.json.id }}"
+
+    - name: SETFACTNATPOLICYNAME
+      set_fact:
+        NATPOLICYNAME: "{{ OUTPUTCREATENATPOLICY.policy.json.name }}"
+
+    - name: SETFACTNATPOLICYURI
+      set_fact:
+        NATPOLICYURI: "{{ OUTPUTCREATENATPOLICY.policy.json.uri }}"
+
+
+
+

@@ -1,0 +1,14 @@
+ADDRESS_ID:
+{% for X in OUTPUTCREATEADDRESS.results %}
+{% if OUTPUTCREATEADDRESS.results %}
+{% if X.status == 200 %}
+  - "status": "{{ X.status }}"
+    "id": "{{ X.json.address.uuid }}"
+    "name": "{{ X.json.address.name }}"
+{% endif %}
+{% if X.status == 500 %}
+  - "status": "{{ X.status }}"
+    "name": "{{ X.item.name }}"
+{% endif %}
+{% endif %}
+{% endfor %}

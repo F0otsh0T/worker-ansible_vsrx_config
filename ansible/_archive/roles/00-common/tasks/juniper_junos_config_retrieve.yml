@@ -1,0 +1,48 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Tasks:
+#   - JUNOSRetrieveConfig: Retrieve Config
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConfConnectivity
+    wait_for:
+      host: "{{ ansible_host }}"
+      port: "{{ NETCONF_PORT }}"
+      timeout: 60
+
+################################################################################
+# Juniper.junos_install_config from previous Config backup
+################################################################################
+  - name: JuniperJUNOSConfigRetrieve
+    juniper_junos_config:
+      diff: "yes"
+      diffs_file: "{{ OUTPUT_DIR }}/diff.juniper_junos_config_overwrite.{{ inventory_hostname }}"
+      format: "text"
+      host: "{{ ansible_host }}"
+      load: "overwrite"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_config_overwrite.{{ inventory_hostname }}"
+#      passwd: "{{ JUNOS_PASSWORD }}"
+      port: "{{ NETCONF_PORT }}"
+#      src: ""
+      ssh_private_key_file: "{{ SSH_PRIVATE_KEY_FILE }}"
+      template: "roles/{{ DEPLOYMENT_TYPE }}/templates/{{ CONFIG_TYPE }}_cfg.j2"
+      user: "{{ JUNOS_USERNAME }}"
+      vars:
+    register: vSRXJuniperJUNOSConfigOverwrite
+##########
+  - name: DebugvSRXJuniperJUNOSConfigOverwrite
+    debug:
+      msg: "{{ vSRXJuniperJUNOSConfigOverwrite }}"
+##########
+  - name: CopyDebugvSRXJuniperJUNOSConfigOverwrite
+    copy:
+      content: "{{ vSRXJuniperJUNOSConfigOverwrite }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_config_overwrite.{{ inventory_hostname }}"

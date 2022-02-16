@@ -1,0 +1,192 @@
+# Example which shows how to reach nested ansible variable which is partially different.
+# Run that playbook with ansible-playbook -e "env=test" eg/eg-excercise-nested_var.yml
+---
+
+#
+- hosts: all
+  connection : ssh
+  gather_facts: no
+  vars:
+
+    cidr_blocks:
+      vpc_production_cidr_block: "10.10.0.0/28"
+      vpc_infra_cidr_block:      "10.20.0.0/28"
+      vpc_test_cidr_block:       "10.30.0.0/28"
+
+### cidr_blocks and cidr_blocks2 are identical
+    cidr_blocks2: 
+      vpc_production_cidr_block: "10.10.0.0/28"
+      vpc_infra_cidr_block:      "10.20.0.0/28"
+      vpc_test_cidr_block:       "10.30.0.0/28"
+
+    INT3_IP_V4:
+      "ztst3frwl01exn001": "10.20.39.4"
+      "ztst3frwl01exn002": "10.20.39.3"
+      "ztst3frwl01exn003": "10.20.39.6"
+      "ztst3frwl01exn004": "10.20.39.5"
+      "ztst3frwl01exn005": "10.20.39.10"
+      "ztst3frwl01exn006": "10.20.39.9"
+      "ztst3frwl01exn007": "10.20.39.8"
+      "ztst3frwl01exn008": "10.20.39.7"
+      "ztst06frwl01exn001": "10.20.36.193"
+      "ztst06frwl01exn002": "10.20.36.190"
+      "ztst06frwl01exn003": "10.20.36.192"
+      "ztst06frwl01exn004": "10.20.36.191"
+      "ztst06frwl01exn005": "10.20.36.197"
+      "ztst06frwl01exn006": "10.20.36.196"
+      "ztst06frwl01exn007": "10.20.36.195"
+      "ztst06frwl01exn008": "10.20.36.194"
+
+    INT3_IP_V4_MASK:
+      "ztst3frwl01exn001": "24"
+      "ztst3frwl01exn002": "24"
+      "ztst3frwl01exn003": "24"
+      "ztst3frwl01exn004": "24"
+      "ztst3frwl01exn005": "24"
+      "ztst3frwl01exn006": "24"
+      "ztst3frwl01exn007": "24"
+      "ztst3frwl01exn008": "24"
+      "ztst06frwl01exn001": "24"
+      "ztst06frwl01exn002": "24"
+      "ztst06frwl01exn003": "24"
+      "ztst06frwl01exn004": "24"
+      "ztst06frwl01exn005": "24"
+      "ztst06frwl01exn006": "24"
+      "ztst06frwl01exn007": "24"
+      "ztst06frwl01exn008": "24"
+
+
+#    nest: "{{ [ansible_host] }}"
+    nest: "{{ inventory_hostname }}"
+
+    LOCATION: "TST6B"
+
+    STACK: "EXN"
+
+    PROTECTED_NET: "192.168.88.0/24"
+
+    PROTECTED_NET_NAME: "PROTECTED_NET_V4_ZTST6BFRWL01EXN"
+
+    PROTECTED_NET_DICT:
+      "PROTECTED_NET_{{LOCATION}}_{{STACK}}_V4_1": "192.168.88.0/24"
+      "PROTECTED_NET_{{LOCATION}}_{{STACK}}_V4_2": "192.168.89.0/24"
+
+    PROTECTED_NET_LIST_DICT:
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.88.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.89.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "2606:ae00:e200:103::/64"
+        inet: 6
+
+  tasks:
+
+    - name: Show All CIDRs
+      debug:
+        msg: "{{ cidr_blocks }}"
+
+    - name: Show Specific CIDRs
+      debug:
+        msg: "{{ cidr_blocks['vpc_%s_cidr_block' | format(env)] }}"
+
+    - name: Show CIDR Keys
+      debug:
+        msg: "{{ cidr_blocks.keys() }}"
+
+#    - name: Show Specific CIDR Key
+#      debug:
+#        msg: "{{ cidr_blocks.key['vpc_%s_cidr_block' | format(env)] }}"
+
+    - name: Show CIDR Values
+      debug:
+        msg: "{{ cidr_blocks.values() }}"
+
+#    - name: Show Specific CIDR Value
+
+
+    - name: Show Specific IP ( key == inventory_hostname )
+      debug:
+        msg:
+          - "##################################################"
+          - "# For host {{ inventory_hostname }},"
+          - "# the INT3_IP_V4 and INT3_IP_V4_MASK"
+          - "# in CIDR Notation (v.w.x.y/z) is:"
+          - "# {{ INT3_IP_V4[inventory_hostname] }}/{{ INT3_IP_V4_MASK[inventory_hostname] }} "
+          - "##################################################"
+
+    - name: Show Host ( ansible_host )
+      debug:
+        msg: "{{ ansible_host }}"
+
+    - name: Show Nest Test ( inventory_hostname )
+      debug:
+        msg: "{{ nest }}"
+
+    - name: Show "with_dict"
+      debug:
+        msg:
+          - "{{item.key}}: {{item.value}}"
+          - "Key:   {{item.key}}"
+          - "Value: {{item.value}}"
+      with_dict: {a: 1, b: 2, c: 3}
+
+    - name: Show Formatted "with_dict"
+      debug:
+        msg:
+          - "##################################################"
+#          - "# For host {{ inventory_hostname }},"
+          - "# For host {{ item.key }},"
+          - "# The KEY:VALUE are as follows"
+          - "# {{item.key}}: {{item.value}}"
+          - "# Key:   {{item.key}}"
+          - "# Value: {{item.value}}"
+          - "# Dict: {{INT3_IP_V4}}"
+          - "##################################################"
+      with_dict: "{{INT3_IP_V4}}"
+
+    - name: Show Formatted "with_dict" matching "WHEN" "item.key == inventory_hostname"
+      when: item.key == inventory_hostname
+      debug:
+        msg:
+          - "##################################################"
+          - "# For host with inventory_hostname == {{ inventory_hostname }},"
+#          - "# For host {{ item.key }},"
+          - "# Matching item.key == inventory_hostname"
+          - "# The KEY:VALUE are as follows"
+          - "# (item.key:item.value)
+          - "# {{item.key}}: {{item.value}}"
+          - "# Key:   {{item.key}}"
+          - "# Value: {{item.value}}"
+#          - "# Dict: {{INT3_IP_V4}}"
+          - "##################################################"
+      with_dict: "{{INT3_IP_V4}}"
+
+    - name: Show Formatted "with_dict" with Nested Variables
+      debug:
+        msg:
+          - "##################################################"
+          - "# For host {{ inventory_hostname }},"
+          - "# The KEY:VALUE are as follows"
+          - "# {{item.key}}: {{item.value}}"
+          - "# Key:   {{item.key}}"
+          - "# Value: {{item.value}}"
+          - "##################################################"
+      with_dict: "{{PROTECTED_NET_DICT}}"
+
+    - name: Show Formatted "with_dict" with List of Dictionaries - Loop
+      debug:
+        msg:
+          - "############################################################"
+          - "# For host {{ inventory_hostname }},"
+          - "# The Loop of the Values for Each of the following Keys"
+          - "# {{item.name}}, {{item.prefix}}, {{item.inet}}"
+          - "# name:   {{item.name}}"
+          - "# ip_address: {{item.prefix}}"
+          - "# address_type: NETWORK"
+          - "# address_version: {{item.inet}}"
+          - "############################################################"
+#      with_dict: "{{PROTECTED_NET_LIST_DICT}}"
+      loop: "{{PROTECTED_NET_LIST_DICT}}"

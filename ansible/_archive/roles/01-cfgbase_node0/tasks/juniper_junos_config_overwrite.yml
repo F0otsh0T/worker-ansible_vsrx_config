@@ -1,0 +1,73 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Tasks:
+#   - JUNOSInstallConfig: Upload and Apply Config
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+
+################################################################################
+# Juniper.junos_install_config overwrite for base
+################################################################################
+  - name: JuniperJUNOSConfigOverwrite
+    juniper_junos_config:
+      diff: "yes"
+      diffs_file: "{{ OUTPUT_DIR }}/diff.juniper_junos_config_overwrite_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+      format: "text"
+      host: "{{ ansible_host }}"
+      load: "overwrite"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_config_overwrite_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+#      passwd: "{{ JUNOS_PASSWORD }}"
+      port: "{{ NETCONF_PORT }}"
+      timeout: 300
+#      src: ""
+      ssh_private_key_file: "{{ SSH_PRIVATE_KEY_FILE }}"
+      template: "roles/{{ DEPLOYMENT_TYPE }}/templates/{{ CONFIG_TYPE }}_cfg.j2"
+      user: "{{ JUNOS_USERNAME }}"
+      vars:
+        ansible_host: "{{ ansible_host }}"
+        inventory_hostname: "{{ inventory_hostname }}"
+        ROUTEFILTER_PREFIX_01: "{{ ROUTEFILTER_PREFIX_01 }}"
+        ROUTEFILTER_PREFIX_02: "{{ ROUTEFILTER_PREFIX_02 }}"
+        BGP_NEIGHBOR_01: "{{ BGP_NEIGHBOR_01 }}"
+        BGP_NEIGHBOR_02: "{{ BGP_NEIGHBOR_02 }}"
+        BGP_AS_01: "{{ BGP_AS_01 }}"
+        BGP_PEER_AS_01: "{{ BGP_PEER_AS_01 }}"
+        CV_LOCAL_PREF: "{{ CV_LOCAL_PREF }}"
+        SNMP_DESC: "{{ SNMP_DESC }}"
+        SNMP_LOC: "{{ SNMP_LOC }}"
+        JSA_LB_VIP: "{{ JSA_LB_VIP }}"
+        INT0: "{{ INT0 }}"
+        INT0_IP_V4_MASK: "{{ INT0_IP_V4_MASK }}"
+        INT0_IP_V4_GW: "{{ INT0_IP_V4_GW }}"
+        INT1: "{{ INT1 }}"
+        INT1_IP_V4: "{{ INT1_IP_V4 }}"
+        INT1_IP_V4_MASK: "{{ INT1_IP_V4_MASK }}"
+        INT1_IP_V4_GW: "{{ INT1_IP_V4_GW }}"
+        INT2: "{{ INT2 }}"
+        INT2_IP_V4: "{{ INT2_IP_V4 }}"
+        INT2_IP_V4_MASK: "{{ INT2_IP_V4_MASK }}"
+        INT2_IP_V4_GW: "{{ INT2_IP_V4_GW }}"
+        INT3: "{{ INT3 }}"
+        INT3_IP_V4: "{{ INT3_IP_V4 }}"
+        INT3_IP_V4_MASK: "{{ INT3_IP_V4_MASK }}"
+        INT4: "{{ INT4 }}"
+        INT4_IP_V4: "{{ INT4_IP_V4 }}"
+        INT4_IP_V4_MASK: "{{ INT4_IP_V4_MASK }}"
+    register: vSRXJuniperJUNOSConfigOverwrite
+##########
+  - name: DebugvSRXJuniperJUNOSConfigOverwrite
+    debug:
+      msg: "{{ vSRXJuniperJUNOSConfigOverwrite }}"
+##########
+  - name: CopyDebugvSRXJuniperJUNOSConfigOverwrite
+    copy:
+      content: "{{ vSRXJuniperJUNOSConfigOverwrite }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_config_overwrite_{{CONFIG_TYPE}}.{{ inventory_hostname }}"

@@ -1,0 +1,53 @@
+FROM juniper/pyez-ansible:2.0.2
+
+MAINTAINER Automation User <me@where.io>
+
+LABEL type="afw-worker-vsrxtest001"
+
+# UPDATE AND UPGRADE
+RUN apk update
+RUN apk upgrade
+
+# INSTALL REDIS
+#RUN apk add redis
+
+# INSTALL BASH
+RUN apk add bash
+
+# INSTALL CURL
+RUN apk add curl
+
+# INSTALL WGET
+RUN apk add wget
+
+# INSTALL SSHPASS
+RUN apk add sshpass
+
+# INSTALL TROUBLESHOOTING TOOLS
+RUN apk add bind-tools &&\
+    apk add tcpdump
+
+# INSTALL PIP
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &&\
+    python get-pip.py
+
+# INSTALL PYTHON REDIS
+RUN pip install redis
+
+# CREATE REPO DIRECTORIES
+RUN mkdir -p /ansible &&\
+    mkdir -p /ansible/files &&\
+    mkdir -p /ansible/log &&\
+    mkdir -p /ansible/log/config &&\
+    mkdir -p /ansible/log/debug &&\
+    mkdir -p /ansible/log/output
+
+# COPY REPO
+COPY ./ /ansible/
+
+# VERIFY REPO COPY
+RUN ls -al /ansible/*
+
+# RUN CONTAINER KEEPALIVE PROCESS
+RUN chmod 744 /ansible/files/keepalive.sh
+CMD ["/ansible/files/keepalive.sh"]

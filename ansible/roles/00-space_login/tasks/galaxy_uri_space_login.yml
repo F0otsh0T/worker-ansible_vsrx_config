@@ -1,0 +1,59 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Space EMS Tasks:
+#   - JUNOSSPACELOGIN: Log in to JUNOS Space
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConnectivity
+    wait_for:
+      host: "{{ SPACE_HOST }}"
+      port: "{{ SPACE_API_PORT }}"
+      timeout: 30
+
+################################################################################
+# Galaxy.URI Juniper JUNOS Space Login
+################################################################################
+# 01. LOGIN TO JUNOS SPACE
+################################################################################
+  - name: JUNOSSpace-Login
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/login"
+      method: POST
+      force_basic_auth: yes
+      status_code: 200
+      follow_redirects: all
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      return_content: yes
+      validate_certs: no
+      headers:
+        Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+    register: SpaceLogin
+
+  - name: Debug-JUNOSSpace-Login-JSON
+    debug:
+      var: SpaceLogin.json
+#      verbosity: 1
+
+  - name: Debug-JUNOSSpace-Login
+    debug:
+      msg: "{{ SpaceLogin }}"
+
+  - name: Copy-Debug-JUNOSSpace-Login
+    copy:
+      content: "{{ SpaceLogin }}"
+      dest: "{{ DEBUG_DIR }}deb.00_01-junos_space_login_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - set_fact:
+      SpaceLogin: "{{ SpaceLogin }}"
+
+
+
+

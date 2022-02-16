@@ -1,0 +1,201 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Space EMS Tasks:
+#   - JUNOSSPACEASSIGNPOLICY: Log in to JUNOS Space & Assign Policy to Devices
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConnectivity
+    wait_for:
+      host: "{{ SPACE_HOST }}"
+      port: "{{ SPACE_API_PORT }}"
+      timeout: 30
+
+################################################################################
+# Galaxy.URI Juniper JUNOS Space Assign Security Policy to Device
+################################################################################
+# 01. LOGIN TO JUNOS SPACE
+################################################################################
+  - name: JUNOSSpace-Login
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/login"
+      method: POST
+      force_basic_auth: yes
+      status_code: 200
+      follow_redirects: all
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      return_content: yes
+      validate_certs: no
+      headers:
+        Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+    register: SPACELOGIN
+
+  - name: Debug-JUNOSSpace-Login-JSON
+    debug:
+      var: SPACELOGIN.json
+#      verbosity: 1
+
+  - name: Debug-JUNOSSpace-Login
+    debug:
+      msg: "{{ SPACELOGIN }}"
+
+  - name: Copy-Debug-JUNOSSpace-Login
+    copy:
+      content: "{{ SPACELOGIN }}"
+      dest: "{{ DEBUG_DIR }}deb.06_01-junos_space_login_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: Output-Debug-JUNOSSpace-Login
+    copy:
+      content: "{{ SPACELOGIN.set_cookie }}"
+      dest: "{{ DEBUG_DIR }}output.06_01-junos_space_login_set_cookie{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+
+  - name: SetFact-Cookie
+    set_fact:
+      LOGIN_COOKIE: "{{ SPACELOGIN.set_cookie }}"
+
+################################################################################
+# 02. GET POLICY ID
+################################################################################
+
+  - name: JUNOSSpace-GetPolicy
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/policy-management/firewall/policies?filter=(name%20eq%20'{{ SPACE_API_POLICY_NAME }}')"
+      method: GET
+      status_code: 200
+      follow_redirects: all
+      return_content: yes
+      body_format: json
+      validate_certs: no
+      headers:
+        Accept: application/vnd.juniper.sd.policy-management.firewall.policies+json;version=2;q=0.02
+        Cookie: "{{ LOGIN_COOKIE }}"
+#        Cookie: "{{ SPACELOGIN.set_cookie }}"
+    register: SpaceGetPolicyID
+
+#  - name: Debug-JUNOSSpace-GetPolicy-MSG
+#    debug:
+#      msg: "{{ SpaceGetPolicyID }}"
+
+  - name: Debug-JUNOSSpace-GetPolicy-VAR
+    debug:
+      var: SpaceGetPolicyID
+#      verbosity: 1
+
+  - name: Copy-Debug-JUNOSSpace-GetPolicy
+    copy:
+      content: "{{ SpaceGetPolicyID }}"
+      dest: "{{ DEBUG_DIR }}deb.06_02-junos_space_get_policy_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: Set-SD-PolicyID
+    set_fact:
+      CONTEXT_POLICY_ID: "{{ SpaceGetPolicyID.json.policies.policy[0].id }}"
+    ignore_errors: yes
+
+  - name: Debug-Set-SD-PolicyID
+    debug:
+      msg: "{{ CONTEXT_POLICY_ID }}"
+    ignore_errors: yes
+
+  - name: Output-Debug-Set-SD-PolicyID
+    copy:
+      content: "{{ CONTEXT_POLICY_ID }}"
+      dest: "{{ OUTPUT_DIR }}output.06_02-junos_space_get_policy_id_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    ignore_errors: yes
+
+################################################################################
+# 03. PUBLISH POLICY
+################################################################################
+
+  - name: JUNOSSpace-PublishPolicy
+    uri:
+#      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/policy-management/firewall/provisioning/publish-policy?update=true"
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/policy-management/firewall/provisioning/publish-policy?update=false"
+      method: POST
+      status_code: 200
+      follow_redirects: all
+      return_content: yes
+      body_format: json
+      validate_certs: no
+      headers:
+        Accept: application/vnd.juniper.sd.fwpolicy-provisioning.monitorable-task-instances+json;version=1;q=0.01
+#        Accept: application/vnd.juniper.sd.fwpolicy-provisioning.monitorable-task-instances+xml;version=1;q=0.01
+        content-type: application/vnd.juniper.sd.fwpolicy-provisioning.publish+json;version=1;charset=UTF-8
+#        content-type: application/vnd.juniper.sd.fwpolicy-provisioning.publish+xml;version=1;charset=UTF-8
+        Cookie: "{{ LOGIN_COOKIE }}"
+#        Cookie: "{{ SPACELOGIN.set_cookie }}"
+      body: >
+        {
+          "publish" : {
+            "policy-ids" : {
+              "policy-id" : [ "{{ CONTEXT_POLICY_ID }}" ]
+            },
+          "delete-oldest-snapshot" : "false"
+          }
+        }
+#      body: >
+#        {
+#        "publish" : {
+#        "policy-ids" : {
+#        "policy-id" : [ "Integer" ]
+#        },
+#        "delete-oldest-snapshot" : "Boolean"
+#        }
+#        }
+#      body: >
+#        <?xml version="1.0" encoding="UTF-8"?>
+#        <publish>
+#          <policy-ids>
+#            <policy-id>{{ CONTEXT_POLICY_ID }}</policy-id>
+#          </policy-ids>
+#          <delete-oldest-snapshot>false</delete-oldest-snapshot>
+#        </publish>
+#      body: >
+#        <?xml version="1.0" encoding="UTF-8"?>
+#        <publish>
+#        <policy-ids>
+#        <policy-id>{{ CONTEXT_POLICY_ID }}</policy-id>
+#        </policy-ids>
+#        <delete-oldest-snapshot>Boolean</delete-oldest-snapshot>
+#        </publish>
+    register: SpacePublishPolicy
+    ignore_errors: yes
+
+  - name: Debug-JUNOSSpace-PublishPolicy-VAR
+    debug:
+      var: SpacePublishPolicy
+#      verbosity: 1
+    ignore_errors: yes
+
+  - name: Copy-Debug-JUNOSSpace-PublishPolicy
+    copy:
+      content: "{{ SpacePublishPolicy }}"
+      dest: "{{ DEBUG_DIR }}deb.06_03-junos_space_publish_policy_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    ignore_errors: yes
+
+################################################################################
+# 04. LOGOUT
+################################################################################
+#
+  - name: JUNOS_SPACE//LOGOUT
+    block:
+    - name: JUNOSSpace-Logout
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: OUTPUTLOGOUT
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT
+#    when:
+    ignore_errors: yes

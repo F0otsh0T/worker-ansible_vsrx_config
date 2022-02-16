@@ -1,0 +1,134 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Tasks:
+#   - JUNOSInstallLicense: Upload and Apply License
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConfConnectivity
+    wait_for:
+      host: "{{ ansible_host }}"
+      port: "{{ NETCONF_PORT }}"
+      timeout: 60
+
+################################################################################
+# Juniper.junos & Command to install License
+################################################################################
+  - name: CommandCopyLicenseFile
+    command: "scp -o StrictHostKeyChecking=no -i /key/{{ JUNOS_USERNAME }} /key/license.txt {{ JUNOS_USERNAME }}@{{ ansible_host }}:/var/tmp/license.txt"
+    register: vSRXCommandCopyLicenseFile
+##########
+  - name: DebugvSRXCommandCopyLicenseFile
+    debug:
+      msg: "{{ vSRXCommandCopyLicenseFile }}"
+##########
+  - name: CopyDebugCommandCopyLicenseFile
+    copy:
+      content: "{{ vSRXCommandCopyLicenseFile }}"
+      dest: "{{ DEBUG_DIR }}/deb.command_copy_license_file_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+##########
+#  - name: JuniperJUNOSCommandDeleteFactoryLicense
+#    juniper_junos_command:
+#      provider: "{{ PROVIDER_JUNIPER_JUNOS_VARS }}"
+#      logdir: "{{ DEBUG_DIR }}"
+#      logfile: "{{ LOG_DIR }}/log.juniper_junos_command_delete_factory_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+#      commands:
+#        - "request system license delete all"
+#    register: vSRXJuniperJUNOSCommandDeleteFactoryLicense
+##########
+#  - name: DebugvSRXJuniperJUNOSCommandDeleteFactoryLicense
+#    debug:
+#      msg: "{{ vSRXJuniperJUNOSCommandDeleteFactoryLicense }}"
+##########
+#  - name: CopyDebugvSRXJuniperJUNOSCommandDeleteFactoryLicense
+#    copy:
+#      content: "{{ vSRXJuniperJUNOSCommandDeleteFactoryLicense }}"
+#      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_command_delete_factory_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+##########
+  - name: JuniperJUNOSRPCDeleteFactoryLicense
+    juniper_junos_rpc:
+      provider: "{{ PROVIDER_JUNIPER_JUNOS_VARS }}"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_rpc_delete_factory_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+      rpcs:
+        - "request-license-delete"
+      kwargs:
+        - all: True
+    register: vSRXJuniperJUNOSRPCDeleteFactoryLicense
+##########
+  - name: DebugvSRXJuniperJUNOSRPCDeleteFactoryLicense
+    debug:
+      msg: "{{ vSRXJuniperJUNOSRPCDeleteFactoryLicense }}"
+##########
+  - name: CopyDebugvSRXJuniperJUNOSRPCDeleteFactoryLicense
+    copy:
+      content: "{{ vSRXJuniperJUNOSRPCDeleteFactoryLicense }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_rpc_delete_factory_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+##########
+#  - name: JuniperJUNOSCommandInstallLicense
+#    juniper_junos_command:
+#      host: "{{ ansible_host }}"
+#      logdir: "{{ DEBUG_DIR }}"
+#      logfile: "{{ LOG_DIR }}/log.juniper_junos_command_install_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+#      port: "{{ NETCONF_PORT }}"
+#      ssh_private_key_file: "{{ SSH_PRIVATE_KEY_FILE }}"
+#      user: "{{ JUNOS_USERNAME }}"
+#      commands:
+#        - "request system license add /var/tmp/license.txt"
+#    register: vSRXJuniperJUNOSCommandInstallLicense
+##########
+#  - name: DebugvSRXJuniperJUNOSCommandInstallLicense
+#    debug:
+#      msg: "{{ vSRXJuniperJUNOSCommandInstallLicense }}"
+##########
+#  - name: CopyDebugvSRXJuniperJUNOSCommandInstallLicense
+#    copy:
+#      content: "{{ vSRXJuniperJUNOSCommandInstallLicense }}"
+#      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_command_delete_factory_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+##########
+  - name: JuniperJUNOSRPCInstallLicense
+    juniper_junos_rpc:
+      provider: "{{ PROVIDER_JUNIPER_JUNOS_VARS }}"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_rpc_install_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+      rpcs:
+        - "request-license-add"
+      kwargs:
+        - key_data: "{{ VSRX_LICENSE_KEY }}"
+#        - key_data: "JUNOS839532 aeaqib qbo4fq 4ojqg4 ytiojr he3dqn brg43a yckbkq tfiicj jzbs4b zik3ql d4zjsz t5xpli fi2wo7 dm5gqk r6rrpk m4igqs fv53wm w6ivzz kepaxl 6mijw3 mv3a"
+    register: vSRXJuniperJUNOSRPCInstallLicense
+##########
+  - name: DebugvSRXJuniperJUNOSRPCInstallLicense
+    debug:
+      msg: "{{ vSRXJuniperJUNOSRPCInstallLicense }}"
+##########
+  - name: CopyDebugvSRXJuniperJUNOSRPCInstallLicense
+    copy:
+      content: "{{ vSRXJuniperJUNOSRPCInstallLicense }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_rpc_install_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+##########
+  - name: JuniperJUNOSRPCVerifyLicense
+    juniper_junos_rpc:
+      provider: "{{ PROVIDER_JUNIPER_JUNOS_VARS }}"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_rpc_verify_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+      rpcs:
+        - "get-license-summary-information"
+    register: vSRXJuniperJUNOSRPCVerifyLicense
+##########
+  - name: DebugvSRXJuniperJUNOSRPCVerifyLicense
+    debug:
+      msg: "{{ vSRXJuniperJUNOSRPCVerifyLicense }}"
+##########
+  - name: CopyDebugvSRXJuniperJUNOSRPCVerifyLicense
+    copy:
+      content: "{{ vSRXJuniperJUNOSRPCVerifyLicense }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_rpc_verify_license_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+##########
+

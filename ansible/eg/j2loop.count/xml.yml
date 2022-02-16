@@ -1,0 +1,36 @@
+---
+  - name: Demonstrating variables in Jinja2 Loops
+    hosts: localhost
+    connection: local
+    vars_files:
+      - vars.yml
+    gather_facts: no
+    tasks:
+      - name: Create the Jinja2 based template
+        template: src=./loopxml.j2 dest=./outputxml.txt
+        register: OUTPUT
+
+      - name: Debug Output
+        debug:
+          var: OUTPUT
+
+      - name: Show Template Results
+        debug:
+          msg: "{{ lookup('template', './loopxml.j2') }}"
+        register: RESULT
+
+      - name: Debug Result
+        debug:
+          var: RESULT
+
+      - name: Set Fact J2 Template
+        set_fact:
+          ADDRESS_MEMBERS: "{{ lookup('template', './loopxml.j2') }}"
+
+      - name: Show Fact ADDRESS_MEMBERS
+        debug:
+          var: ADDRESS_MEMBERS
+
+
+
+

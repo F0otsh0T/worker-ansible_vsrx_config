@@ -1,0 +1,27 @@
+---
+
+##################################################
+# USER
+#
+
+JUNOS_USERNAME: {{VSRX_MECHUSER}}
+OS_USERNAME: myuser
+
+##################################################
+# PASSWORD
+#
+
+#JUNOS_PASSWORD: ""
+OS_PASSWORD: ""
+
+##################################################
+# SSH_PUBLIC_KEY
+#
+
+SSH_PUBLIC_KEY: {{VSRX_SUPERUSER_SSHKEY}} myuser@WACDTL01myuser
+
+##################################################
+# SSH_PRIVATE_KEY
+#
+
+SSH_PRIVATE_KEY_FILE: /home/myuser/.ssh/{{VSRX_MECHUSER}}

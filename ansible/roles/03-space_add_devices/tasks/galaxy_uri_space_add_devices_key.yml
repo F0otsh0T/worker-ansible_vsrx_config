@@ -1,0 +1,316 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Space EMS Tasks:
+#   - JUNOSSPACEADDDEVICES: Log in to JUNOS Space & Add Devices
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConnectivity
+    wait_for:
+      host: "{{ SPACE_HOST }}"
+      port: "{{ SPACE_API_PORT }}"
+      timeout: 30
+
+################################################################################
+# Galaxy.URI Juniper JUNOS Space Login
+################################################################################
+# 01. LOGIN TO JUNOS SPACE
+################################################################################
+  - name: JUNOSSpace-Login
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/login"
+      method: POST
+      force_basic_auth: yes
+      status_code: 200
+      follow_redirects: all
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      return_content: yes
+      validate_certs: no
+      headers:
+        Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+    register: SPACELOGIN
+
+  - name: Debug-JUNOSSpace-Login
+    debug:
+      msg: "{{ SPACELOGIN }}"
+
+  - name: Copy-Debug-JUNOSSpace-Login
+    copy:
+      content: "{{ SPACELOGIN }}"
+      dest: "{{ DEBUG_DIR }}deb.02_01-junos_space_login_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: Output-Debug-JUNOSSpace-Login
+    copy:
+      content: "{{ SPACELOGIN.set_cookie }}"
+      dest: "{{ OUTPUT_DIR }}output.02_01-junos_space_login_set_cookie.{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+
+  - name: Output-Cookie
+    copy:
+      content: "{{ SPACELOGIN.set_cookie }}"
+      dest: "{{ OUTPUT_DIR }}cookie"
+
+  - name: SetFact-Cookie
+    set_fact:
+      LOGIN_COOKIE: "{{ SPACELOGIN.set_cookie }}"
+
+################################################################################
+# 02. IF EXISTS, GET DISCOVERY PROFILE / RULE ID
+################################################################################
+
+  - name: JUNOSSpace-AddDevices-GETDISCOVERYLIST
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/device-management/device-discovery-rules"
+      method: GET
+      validate_certs: no
+      status_code: 200, 202, 500
+      return_content: yes
+      force_basic_auth: yes
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      headers:
+#        Accept: application/vnd.net.juniper.space.job-management.task+json;version=1
+        Accept: application/vnd.net.juniper.space.device-management.device-discovery-rules+json;version=6
+#        content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+json;version=6;charset=UTF-8
+#        content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+xml;version=6;charset=UTF-8
+#      body_format: json
+    register: SPACEGETDISCOVERYLIST
+
+  - name: JUNOSSpace-AddDevices-DEBUG_GETDISCOVERYLIST
+    debug:
+      msg: "{{ SPACEGETDISCOVERYLIST }}"
+
+  - name: Copy-Debug-JUNOSSpace-AddDevices-DEBUG_GETDISCOVERYLIST
+    copy:
+      content: "{{ SPACEGETDISCOVERYLIST }}"
+      dest: "{{ DEBUG_DIR }}deb.02_02-junos_space_add_devices_getdiscoverylist_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: JUNOSSpace-AddDevices-SETFACT_DISCOVERYLIST
+    set_fact:
+      DISCOVERYLIST: "{{ SPACEGETDISCOVERYLIST.json['device-discovery-rules']['device-discovery-rule'] }}"
+
+  - name: JUNOSSpace-AddDevices-DEBUG_DISCOVERYLIST
+    debug:
+      msg: "{{ DISCOVERYLIST }}"
+
+  - name: Copy-Debug-JUNOSSpace-AddDevices-DEBUG_DISCOVERYLIST
+    copy:
+      content: "{{ DISCOVERYLIST }}"
+      dest: "{{ DEBUG_DIR }}deb.02_02-junos_space_add_devices_setfactdiscoverylist_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: JUNOSSpace-AddDevices-GET_DELETEDISCOVERYID
+    debug:
+#      var: item.id
+      msg: "The Discovery Profile ID is {{ item.id }} for Discovery Profile Name {{ item['discovery-profile-name'] }}"
+#    when: DISCOVERYLIST["discovery-profile-name"] == {{ inventory_hostname }}
+    when: item["discovery-profile-name"] == "{{ inventory_hostname }}"
+#    when: item["discovery-profile-name"] == "NDC2BIXCFW-NEW"
+    loop: "{{ DISCOVERYLIST }}"
+#    with_items: "{{ DISCOVERYLIST }}"
+    ignore_errors: yes
+    register: SPACEGETDELETEDISCOVERYID
+
+  - name: JUNOSSpace-AddDevices-DEBUG_SPACEGETDELETEDISCOVERYID
+    debug:
+      var: SPACEGETDELETEDISCOVERYID
+    ignore_errors: yes
+
+  - name: Copy-Debug-JUNOSSpace-AddDevices-DEBUG_SPACEGETDELETEDISCOVERYID
+    copy:
+      content: "{{ SPACEGETDELETEDISCOVERYID }}"
+      dest: "{{ DEBUG_DIR }}deb.02_02-junos_space_add_devices_getdiscoveryid_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    ignore_errors: yes
+
+  - name: JUNOSSpace-AddDevices-SETFACT_DELETEDISCOVERYID
+    set_fact:
+      DELETEDISCOVERYID: "{{ item.id }}"
+    when: item["discovery-profile-name"] == "{{ inventory_hostname }}"
+    loop: "{{ DISCOVERYLIST }}"
+    ignore_errors: yes
+    register: SETFACTDELETEDISCOVERYID
+
+  - name: JUNOSSpace-AddDevices-DEBUG_DELETEDISCOVERYID
+    debug:
+      var: DELETEDISCOVERYID
+    ignore_errors: yes
+
+  - name: Copy-JUNOSSpace-AddDevices-DEBUG_DELETEDISCOVERYID
+    copy:
+      content: "{{ DELETEDISCOVERYID }}"
+      dest: "{{ DEBUG_DIR }}deb.02_02-junos_space_add_devices_discoveryid_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    ignore_errors: yes
+
+  - name: JUNOSSpace-AddDevices-DEBUG_SETFACTDELETEDISCOVERYID
+    debug:
+      var: SETFACTDELETEDISCOVERYID
+    ignore_errors: yes
+
+################################################################################
+# 03. IF EXISTS, DELETE DISCOVERY PROFILE / RULE
+################################################################################
+  - name: JUNOSSpace-AddDevices-DeleteDiscoveryProfile
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/device-management/delete-device-discovery-rules"
+      method: POST
+      status_code: 200, 202
+      return_content: yes
+      ## COOKIE NOT WORKING - HAVE TO LOGIN AGAIN
+      force_basic_auth: yes
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      validate_certs: no
+      headers:
+        Accept: application/vnd.net.juniper.space.device-management.delete-device-discovery-rules-response+json;version=6
+        content-type: application/vnd.net.juniper.space.device-management.delete-device-discovery-rules-request+xml;version=6;charset=UTF-8
+      body: >
+        <?xml version="1.0" encoding="UTF-8"?>
+        <delete-device-discovery-rules-request>
+        <device-discovery-rules>
+        <device-discovery-rule href="/api/space/device-management/device-discovery-rules/{{ DELETEDISCOVERYID }}"/>
+        </device-discovery-rules>
+        </delete-device-discovery-rules-request>
+    ignore_errors: yes
+    register: SPACECLEANUPDISCOVERYPROFILE
+
+  - name: Debug-JUNOSSpace-AddDevices-DeleteDiscoveryProfile
+    debug:
+      var: SPACECLEANUPDISCOVERYPROFILE
+
+  - name: Copy-JUNOSSpace-AddDevices-DeleteDiscoveryProfile
+    copy:
+      content: "{{ SPACECLEANUPDISCOVERYPROFILE }}"
+      dest: "{{ DEBUG_DIR }}deb.02_03-junos_space_add_devices_deletediscoveryprofile_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    ignore_errors: yes
+
+################################################################################
+# 04. CREATE DEVICE DISCOVERY PROFILE / RULE
+################################################################################
+# CREATING DISCOVERY PROFILE AUTOMATICALLY KICKS OFF DISCOVERY
+################################################################################
+  - name: JUNOSSpace-AddDevices-CreateDiscoveryProfile
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/device-management/device-discovery-rules"
+      method: POST
+      status_code: 200, 202, 500
+      return_content: yes
+      ## COOKIE NOT WORKING - HAVE TO LOGIN AGAIN
+      force_basic_auth: yes
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      validate_certs: no
+      headers:
+        Accept: application/vnd.net.juniper.space.job-management.task+json;version=1
+        content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+xml;version=6;charset=UTF-8
+#        Cookie: "{{ LOGIN_COOKIE }}"
+#        Cookie: "{{ SPACELOGIN.set_cookie }}" ## COOKIE NOT WORKING - HAVE TO LOGIN AGAIN
+      body: >
+        <?xml version="1.0" encoding="UTF-8"?>
+        <add-device-discovery-rule-by-ip-request>
+          <discovery-profile-name>{{ inventory_hostname }}</discovery-profile-name>
+          <use-ping>false</use-ping>
+          <use-nat>false</use-nat>
+          <sharable>false</sharable>
+          <use-snmp>false</use-snmp>
+          <device-targets>
+            <device-target>
+              <ip-address>{{ ansible_host }}</ip-address>
+                <device-ssh-credentials total="1">
+                  <device-ssh-credential>
+                    <username>{{VSRX_MECHUSER}}</username>
+                    <keybased>true</keybased>
+                    <credential-type>CUSTOM_KEY_BASED</credential-type>
+                    <private-key>-----BEGIN RSA PRIVATE KEY-----
+                    {{PRIVATE KEY}}
+                    -----END RSA PRIVATE KEY-----</private-key>
+                  </device-ssh-credential>
+                </device-ssh-credentials>
+            </device-target>
+          </device-targets>
+          <device-snmp-version>NOT_APPLICABLE</device-snmp-version>
+          <discovery-action-additional-params>
+            <discovery-action-additional-param>
+              <parameter>import-policy</parameter>
+              <parameter-value>false</parameter-value>
+            </discovery-action-additional-param>
+          </discovery-action-additional-params>
+        </add-device-discovery-rule-by-ip-request>
+    register: SPACECREATEDISCOVERYPROFILE
+
+  - name: Debug-JUNOSSpace-AddDevices-CreateDiscoveryProfile-JSON
+    debug:
+      var: SPACECREATEDISCOVERYPROFILE.json
+#      verbosity: 1
+
+  - name: Debug-JUNOSSpace-AddDevices-CreateDiscoveryProfile
+    debug:
+      msg: "{{ SPACECREATEDISCOVERYPROFILE }}"
+
+  - name: Copy-Debug-JUNOSSpace-AddDevices-CreateDiscoveryProfile
+    copy:
+      content: "{{ SPACECREATEDISCOVERYPROFILE }}"
+      dest: "{{ DEBUG_DIR }}deb.02_04-junos_space_add_devices_create_discovery_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: Set-JUNOSSpace-AddDevices-CreateDiscoveryProfile-Task_ID
+    set_fact:
+      DISCOVERY_TASK_ID: "{{ SPACECREATEDISCOVERYPROFILE.json.task.id }}"
+
+  - name: Debug-JUNOSSpace-AddDevices-CreateDiscoveryProfile-Task_ID
+    debug:
+      msg: "{{ DISCOVERY_TASK_ID }}"
+
+#####################################################################################
+# NOTE:
+# If you get an error in JUNOS Space like this:
+#
+#     Discovery unsuccessful. Failed to lock the configuration database on device.
+#     Make sure the user has the necessary privilege to edit the device configuration
+#     and no one else is editing the device configuration.
+#
+# ^^ This could mean a lock on the configuration cannot be achieved.
+# You may need to try some methods of unlocking the configuration
+#   E.g. root@SRX> clear system commit
+# OR reboot the JUNOS Device
+#####################################################################################
+
+  - name: JUNOSSpace-AddDevices-CheckDiscovery
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/job-management/jobs/{{ DISCOVERY_TASK_ID }}"
+      methoed: GET
+      follow_redirects: all
+      return_content: yes
+      headers:
+        Accept: application/vnd.net.juniper.space.job-management.job+json;version=3
+        Cookie: "{{ LOGIN_COOKIE }}"
+      validate_certs: no
+    register: SpaceAddDevicesCheckDiscovery
+    until: SpaceAddDevicesCheckDiscovery.json.job["job-state"] == "DONE"
+    retries: 5
+    delay: 20
+    failed_when: SpaceAddDevicesCheckDiscovery.json.job["job-status"] == "FAILURE"
+
+################################################################################
+# 05. LOGOUT
+################################################################################
+#
+  - name: JUNOS_SPACE//LOGOUT
+    block:
+    - name: JUNOSSpace-Logout
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: OUTPUTLOGOUT
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT
+#    when:
+    ignore_errors: yes

@@ -1,0 +1,308 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+################################################################################
+
+    - name: CREATEADDRESS1
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/json"
+          Content-Type: "application/json"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+          "address": {
+            "definition_type": "CUSTOM",
+            "associated_metadata": "",
+            "name": "{{username}}_API_ADDRESS_1",
+            "description": "TEST",
+            "address_type": "IPADDRESS",
+            "address_version": "IPV4",
+            "ip_address": "8.8.8.8"
+            }
+          }
+      register: TESTAPIADDRESS1 #need 'name' and 'uuid' for address-group
+
+    - name: DEBUGCREATEADDRESS1
+      debug:
+        var: TESTAPIADDRESS1
+
+    - name: CREATEADDRESS2
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/json"
+          Content-Type: "application/json"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+          "address": {
+            "definition_type": "CUSTOM",
+            "associated_metadata": "",
+            "name": "{{username}}_API_ADDRESS_2",
+            "description": "TEST",
+            "address_type": "NETWORK",
+            "address_version": "IPV4",
+            "ip_address": "9.9.9.0/24"
+            }
+          }
+      register: TESTAPIADDRESS2 #need 'name' and 'uuid' for address-group
+
+    - name: DEBUGCREATEADDRESS2
+      debug:
+        var: TESTAPIADDRESS2
+
+    - name: CREATEADDRESS3
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/json"
+          Content-Type: "application/json"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+          "address": {
+            "definition_type": "CUSTOM",
+            "associated_metadata": "",
+            "name": "{{username}}_API_ADDRESS_3",
+            "description": "TEST",
+            "address_type": "NETWORK",
+            "address_version": "IPV6",
+            "ip_address": "2606:ae00:e200:103::/64"
+            }
+          }
+      register: TESTAPIADDRESS3 #need 'name' and 'uuid' for address-group
+
+    - name: DEBUGCREATEADDRESS3
+      debug:
+        var: TESTAPIADDRESS3
+
+################################################################################
+
+    - name: CREATEADDRESSGROUPJSON
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses"
+#        url: "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+#          Accept: "application/json"
+          Content-Type: "application/vnd.juniper.sd.address-management.address+json;version=1;charset=UTF-8"
+#          Content-Type: "application/json"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+          "address" : {
+            "name" : "{{username}}_API_ADDRESS_GROUP_JSON",
+            "address-type" : "GROUP",
+            "definition-type" : "CUSTOM",
+            "members": {
+              "member": [
+                {
+                "name": "{{ TESTAPIADDRESS1.json.address.name }}",
+                "id": "{{ TESTAPIADDRESS1.json.address.uuid }}"
+                },
+                {
+                "name": "{{ TESTAPIADDRESS2.json.address.name }}",
+                "id": "{{ TESTAPIADDRESS2.json.address.uuid }}"
+                },
+                {
+                "name": "{{ TESTAPIADDRESS3.json.address.name }}",
+                "id": "{{ TESTAPIADDRESS3.json.address.uuid }}"
+                },
+                ],
+              }
+            }
+          }
+  #    with_dict: {{ PROTECTED_NET_DICT }}
+      register: OUTPUTCREATEADDRESSGROUPJSON
+
+    - name: PRINTOUTPUTCREATEADDRESSGROUPJSON
+      debug:
+        var: OUTPUTCREATEADDRESSGROUPJSON
+
+    - name: SETFACTADDRESSGROUPJSONID
+      set_fact:
+        ADDRESSGROUPJSON_ID: "{{ OUTPUTCREATEADDRESSGROUPJSON.json.address.id }}"
+
+    - name: SETFACTADDRESSGROUPJSONNAME
+      set_fact:
+        ADDRESSGROUPJSON_NAME: "{{ OUTPUTCREATEADDRESSGROUPJSON.json.address.name }}"
+
+    - name: GETADDRESSGROUPOBJECTCONFIG
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses/{{ ADDRESSGROUPJSON_ID }}"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+      register: OUTPUTADDRESSGROUPOBJECTCONFIG
+
+    - name: PRINTOUTPUTADDRESSGROUPOBJECTCONFIG
+      debug:
+        var: OUTPUTADDRESSGROUPOBJECTCONFIG
+
+################################################################################
+
+    - name: CREATEADDRESSGROUPXML
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses"
+#        url: "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+#          Accept: "application/vnd.juniper.sd.address-management.address+xml;version=1;q=0.01"
+#          Accept: "application/json"
+#          Content-Type: "application/vnd.juniper.sd.address-management.address+json;version=1;charset=UTF-8"
+          Content-Type: "application/vnd.juniper.sd.address-management.address+xml;version=1;charset=UTF-8"
+#          Content-Type: "application/json"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+#        body_format: json
+        body: >
+          <?xml version="1.0" encoding="UTF-8"?>
+          <address>
+          <name>{{username}}_API_ADDRESS_GROUP_XML</name>
+          <members>
+          <member>
+          <name>{{ TESTAPIADDRESS1.json.address.name }}</name>
+          <id>{{ TESTAPIADDRESS1.json.address.uuid }}</id>
+          </member>
+          <member>
+          <name>{{ TESTAPIADDRESS2.json.address.name }}</name>
+          <id>{{ TESTAPIADDRESS2.json.address.uuid }}</id>
+          </member>
+          <member>
+          <name>{{ TESTAPIADDRESS3.json.address.name }}</name>
+          <id>{{ TESTAPIADDRESS3.json.address.uuid }}</id>
+          </member>
+          </members>
+          <address-type>GROUP</address-type>
+          <definition-type>CUSTOM</definition-type>
+          </address>
+  #    with_dict: {{ PROTECTED_NET_DICT }}
+      register: OUTPUTCREATEADDRESSGROUPXML
+
+    - name: PRINTOUTPUTCREATEADDRESSGROUPXML
+      debug:
+        var: OUTPUTCREATEADDRESSGROUPXML
+
+    - name: SETFACTADDRESSGROUPXMLID
+      set_fact:
+        ADDRESSGROUPXML_ID: "{{ OUTPUTCREATEADDRESSGROUPXML.json.address.id }}"
+
+    - name: SETFACTADDRESSGROUPXMLNAME
+      set_fact:
+        ADDRESSGROUPXML_NAME: "{{ OUTPUTCREATEADDRESSGROUPXML.json.address.name }}"
+
+
+################################################################################
+
+    - name: J2TEMPLATEJSON
+      template: src=address_json.j2 dest=address_json.log
+#      template: src=address_json.j2 dest=address_json.log
+      register: OUTPUTJ2TEMPLATEJSON
+
+    - name: PRINTJ2TEMPLATEJSON
+      debug:
+        var: OUTPUTJ2TEMPLATEJSON
+
+    - name: SETFACTJ2TEMPLATEJSON
+      set_fact:
+        ADDRESS_JSON: "{{ lookup('template', 'address_json.j2') }}"
+
+    - name: PRINTSETFACTJ2TEMPLATEJSON
+      debug:
+        var: ADDRESS_JSON
+
+    - name: J2TEMPLATEXML
+      template: src=address_xml.j2 dest=address_xml.log
+      register: OUTPUTJ2TEMPLATEXML
+
+    - name: PRINTJ2TEMPLATEXML
+      debug:
+        var: OUTPUTJ2TEMPLATEXML
+
+    - name: SETFACTJ2TEMPLATEXML
+      set_fact:
+        ADDRESS_XML: "{{ lookup('template', 'address_xml.j2') }}"
+
+    - name: PRINTSETFACTJ2TEMPLATEXML
+      debug:
+        var: ADDRESS_XML
+
+    - name: LOGOUT
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+      register: OUTPUTLOGOUT
+
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT

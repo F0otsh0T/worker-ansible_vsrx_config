@@ -1,0 +1,54 @@
+---
+
+- hosts: all
+  connection : ssh
+  gather_facts: no
+  vars:
+
+  tasks:
+
+    - name: ReadFile
+#      debug: var=item
+      debug:
+      with_file:
+        - "files/file1.txt"
+        - "files/file2.txt"
+      register: OUTPUTREAD
+
+    - name: DebugReadFile
+      debug:
+        var: OUTPUTREAD
+
+    - name: ReadFile_Array
+      debug:
+      with_file:
+        - "files/array.txt"
+      register: OUTPUTARRAY
+
+    - name: DebugArray
+      debug:
+        var: OUTPUTARRAY
+
+    - name: SETFACT_DISCOVERYLIST
+      set_fact:
+        DISCOVERYLIST: "{{ OUTPUTARRAY.results.json['device-discovery-rules']['device-discovery-rule'] }}"
+
+    - name: DEBUG_DISCOVERYLIST
+      debug:
+        msg: "{{ DISCOVERYLIST }}"
+
+    - name: GET_DISCOVERYID
+      debug:
+#        var: item.id
+        msg: "The Discovery Profile ID is {{ item.id }} for Discover Profile Name {{ item['discovery-profile-name'] }}"
+#      when: DISCOVERYLIST["discovery-profile-name"] == {{ inventory_hostname }}
+      when: item["discovery-profile-name"] == "{{ inventory_hostname }}"
+#      when: item["discovery-profile-name"] == "NDC2BIXCFW-NEW"
+      loop: "{{ DISCOVERYLIST }}"
+#      with_items: "{{ DISCOVERYLIST }}"
+      ignore_errors: yes
+      register: GETDISCOVERYID
+
+    - name: DEBUG_GETDISCOVERYID
+      debug:
+        var: GETDISCOVERYID

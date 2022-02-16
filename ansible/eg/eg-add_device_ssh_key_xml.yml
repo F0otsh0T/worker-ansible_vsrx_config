@@ -1,0 +1,121 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: Debug-JUNOSSpace-Login
+      debug:
+        msg: "{{ OUTPUTLOGIN }}"
+
+    - name: SetFact-Cookie
+      set_fact:
+        COOKIE: "{{ OUTPUTLOGIN.set_cookie }}"
+
+    - name: CREATEQUEUE
+      uri:
+        url: "https://10.60.164.206:443/api/hornet-q/queues"
+        method: POST
+        status_code: 201, 412
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        force_basic_auth: yes
+        user: {{username}}
+        password: "@!T3stME!"
+        headers:
+          content-type: application/hornetq.jms.queue+xml
+        body: <queue name="{{SPACE_TEST_QUEUE}}"><durable>false</durable></queue>
+      register: OUTPUTCREATEQUEUE
+
+    - name: DEBUGCREATEQUEUE
+      debug:
+        msg: "{{ OUTPUTCREATEQUEUE }}"
+#        msg: "{{ OUTPUTGETDEVICEID.json }}"
+#        var: OUTPUTGETDEVICEID
+#        var: OUTPUTGETDEVICEID.json
+#        verbosity: 1
+
+    - name: CREATEDISCOVERYPROFILE
+      uri:
+        url: "https://10.60.164.206:443/api/space/device-management/device-discovery-rules"
+        method: POST
+        validate_certs: no
+        status_code: 200, 202, 500
+        return_content: yes
+        force_basic_auth: yes
+        user: "{{username}}"
+        password: "@!T3stME!"
+        headers:
+          Accept: application/vnd.net.juniper.space.job-management.task+json;version=1
+#          Accept: application/vnd.net.juniper.space.job-management.task+xml;version=1
+#          content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+json;version=6;charset=UTF-8
+          content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+xml;version=6;charset=UTF-8
+#          Cookie: "{{ COOKIE }}"
+#        body_format: json
+        body: >
+          <?xml version="1.0" encoding="UTF-8"?>
+          <add-device-discovery-rule-by-ip-request>
+            <discovery-profile-name>ztst06frwl01exn002</discovery-profile-name>
+            <use-ping>false</use-ping>
+            <use-nat>false</use-nat>
+            <sharable>false</sharable>
+            <use-snmp>false</use-snmp>
+            <device-targets>
+              <device-target>
+                <ip-address>10.10.169.232</ip-address>
+                  <device-ssh-credentials total="1">
+                    <device-ssh-credential>
+                      <username>{{VSRX_MECHUSER}}</username>
+                      <keybased>true</keybased>
+                      <credential-type>CUSTOM_KEY_BASED</credential-type>
+                      <private-key>-----BEGIN RSA PRIVATE KEY-----
+                      {{PRIVATE_KEY}}
+                      -----END RSA PRIVATE KEY-----</private-key>
+                    </device-ssh-credential>
+                  </device-ssh-credentials>
+              </device-target>
+            </device-targets>
+            <device-snmp-version>NOT_APPLICABLE</device-snmp-version>
+            <discovery-action-additional-params>
+              <discovery-action-additional-param>
+                <parameter>import-policy</parameter>
+                <parameter-value>false</parameter-value>
+              </discovery-action-additional-param>
+            </discovery-action-additional-params>
+          </add-device-discovery-rule-by-ip-request>
+      register: OUTPUTCREATEDISCOVERYPROFILE
+
+    - name: DEBUGCREATEDISCOVERYPROFILE
+      debug:
+        msg: "{{ OUTPUTCREATEDISCOVERYPROFILE }}"
+
+

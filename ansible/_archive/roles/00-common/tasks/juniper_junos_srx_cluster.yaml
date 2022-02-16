@@ -1,0 +1,48 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Tasks:
+#   - JUNOSvSRXClusterConfig: Upload and Apply Config
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConfConnectivity
+    wait_for:
+      host: "{{ ansible_host }}"
+      port: "{{ NETCONF_PORT }}"
+      timeout: 60
+
+################################################################################
+# Juniper.junos_install_config from previous Config backup
+################################################################################
+  - name: JUNOSvSRXClusterConfig
+    juniper_junos_srx_cluster:
+      enable: "{{ CLUSTER_ENABLE }}"
+      cluster_id: "{{ CLUSTER_ID }}"
+      node_id: "{{ NODE_ID }}"
+      host: "{{ ansible_host }}"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_srx_cluster.{{ inventory_hostname }}"
+#      passwd: "{{ JUNOS_PASSWORD }}"
+      port: "{{ NETCONF_PORT }}"
+#      src: ""
+      ssh_private_key_file: "{{ SSH_PRIVATE_KEY_FILE }}"
+      user: "{{ JUNOS_USERNAME }}"
+    register: JUNOSvSRXClusterConfig
+##########
+  - name: DebugJUNOSvSRXClusterConfig
+    debug:
+      msg: "{{ JUNOSvSRXClusterConfig }}"
+##########
+  - name: CopyDebugJUNOSvSRXClusterConfig
+    copy:
+      content: "{{ JUNOSvSRXClusterConfig }}"
+# Variable-ize:
+#      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_config_merge_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_srx_cluster.{{ inventory_hostname }}"
+

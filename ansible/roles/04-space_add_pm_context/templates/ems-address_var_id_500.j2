@@ -1,0 +1,8 @@
+ADDRESS_ID:
+{% for X in OUTPUTGETADDRESSID500.results %}
+{% if OUTPUTGETADDRESSID500.results %}
+  - "status": "{{ X.status }}"
+    "id": "{{ X.json.addresses.address[0].id }}"
+    "name": "{{ X.json.addresses.address[0].name }}"
+{% endif %}
+{% endfor %}

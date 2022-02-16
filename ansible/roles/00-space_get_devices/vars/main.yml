@@ -1,0 +1,12 @@
+---
+
+##################################################
+# JUNOS Ansible Module Generic
+#
+CONNECTION_PORT: 443
+
+##################################################
+# Role Specific Variables
+#
+DEPLOYMENT_TYPE: "00-space_get_devices"
+CONFIG_TYPE: "ems"

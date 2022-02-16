@@ -1,0 +1,205 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Space EMS Tasks:
+#   - JUNOSSPACEADDDEVICES: Log in to JUNOS Space & Add Devices
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConnectivity
+    wait_for:
+      host: "{{ SPACE_HOST }}"
+      port: "{{ SPACE_API_PORT }}"
+      timeout: 30
+
+################################################################################
+# Galaxy.URI Juniper JUNOS Space Login
+################################################################################
+# 01. LOGIN TO JUNOS SPACE
+################################################################################
+  - name: JUNOSSpace-Login
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/login"
+      method: POST
+      force_basic_auth: yes
+      status_code: 200
+      follow_redirects: all
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      return_content: yes
+      validate_certs: no
+      headers:
+        Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+    register: SpaceLogin
+
+  - name: Debug-JUNOSSpace-Login-JSON
+    debug:
+      var: SpaceLogin.json
+#      verbosity: 1
+
+  - name: Debug-JUNOSSpace-Login
+    debug:
+      msg: "{{ SpaceLogin }}"
+
+  - name: Copy-Debug-JUNOSSpace-Login
+    copy:
+      content: "{{ SpaceLogin }}"
+      dest: "{{ DEBUG_DIR }}deb.02_01-junos_space_login_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: Output-Debug-JUNOSSpace-Login
+    copy:
+      content: "{{ SpaceLogin.set_cookie }}"
+      dest: "{{ OUTPUT_DIR }}output.02_01-junos_space_login_set_cookie.{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+
+  - name: Output-Cookie
+    copy:
+      content: "{{ SpaceLogin.set_cookie }}"
+      dest: "{{ OUTPUT_DIR }}cookie"
+
+  - name: SetFact-Cookie
+    set_fact:
+      LOGIN_COOKIE: "{{ SpaceLogin.set_cookie }}"
+
+################################################################################
+# 02. CREATE HORNET-Q QUEUE
+################################################################################
+  - name: JUNOSSpace-AddDevices-CreateQueue
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/hornet-q/queues"
+      method: POST
+      status_code: 201, 412
+      return_content: yes
+      force_basic_auth: yes
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      validate_certs: no
+      headers:
+        content-type: application/hornetq.jms.queue+xml
+      body: <queue name="{{ SPACE_API_ADD_DEVICES_QUEUE_NAME }}"><durable>false</durable></queue>
+## RETURN: STATUS CODE, NO BODY
+    register: SpaceAddDevicesCreateQueue
+
+#  - name: Debug-JUNOSSpace-AddDevices-CreateQueue
+#      msg: "{{ SpaceAddDevicesCreateQueue }}"
+
+  - name: Copy-Debug-JUNOSSpace-AddDevices-CreateQueue
+    copy:
+      content: "{{ SpaceAddDevicesCreateQueue }}"
+      dest: "{{ DEBUG_DIR }}deb.02_02-junos_space_add_devices_create_queue_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+################################################################################
+# 03. CREATE DEVICE DISCOVERY JOB
+################################################################################
+  - name: JUNOSSpace-AddDevices-CreateDiscovery
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/device-management/discover-devices?queue=http://127.0.0.1:8080/api/hornet-q/queues/jms.queue.{{ SPACE_API_ADD_DEVICES_QUEUE_NAME }}"
+      method: POST
+      status_code: 202
+      return_content: yes
+      ## COOKIE NOT WORKING - HAVE TO LOGIN AGAIN
+      force_basic_auth: yes
+      user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+      password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+      validate_certs: no
+      headers:
+        Accept: application/vnd.net.juniper.space.device-management.discover-devices+json;version=1
+        content-type: application/vnd.net.juniper.space.device-management.discover-devices+xml;version=1;charset=UTF-8
+#        Cookie: "{{ LOGIN_COOKIE }}" ## COOKIE NOT WORKING - HAVE TO LOGIN AGAIN
+      body: >
+        <?xml version="1.0" encoding="UTF-8"?>
+        <systemDiscoveryRule>
+        <ipAddressDiscoveryTarget>
+        <exclude>false</exclude>
+        <ipAddress>{{ ansible_host }}</ipAddress>
+        </ipAddressDiscoveryTarget>
+        <usePing>true</usePing>
+        <useSnmp>false</useSnmp>
+        <manageDiscoveredSystemsFlag>true</manageDiscoveredSystemsFlag>
+        <sshCredential>
+        <userName>{{ SPACE_API_ADD_DEVICES_CREATE_DISCOVERY_JOB_DEVICE_USER }}</userName>
+        <password>{{ SPACE_API_ADD_DEVICES_CREATE_DISCOVERY_JOB_DEVICE_PASSWORD }}</password>
+        </sshCredential>
+        </systemDiscoveryRule>
+    register: SpaceAddDevicesCreateDiscovery
+
+  - name: Debug-JUNOSSpace-AddDevices-CreateDiscovery-JSON
+    debug:
+      var: SpaceAddDevicesCreateDiscovery.json
+#      verbosity: 1
+
+  - name: Debug-JUNOSSpace-AddDevices-CreateDiscovery
+    debug:
+      msg: "{{ SpaceAddDevicesCreateDiscovery }}"
+
+  - name: Copy-Debug-JUNOSSpace-AddDevices-CreateDiscovery
+    copy:
+      content: "{{ SpaceAddDevicesCreateDiscovery }}"
+      dest: "{{ DEBUG_DIR }}deb.02_03-junos_space_add_devices_create_discovery_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: Set-JUNOSSpace-AddDevices-CreateDiscovery-Task_ID
+    set_fact:
+      DISCOVERY_TASK_ID: "{{ SpaceAddDevicesCreateDiscovery.json.task.id }}"
+
+  - name: Debug-JUNOSSpace-AddDevices-CreateDiscovery-Task_ID
+    debug:
+      msg: "{{ DISCOVERY_TASK_ID }}"
+
+#####################################################################################
+# NOTE:
+# If you get an error in JUNOS Space like this:
+#
+#     Discovery unsuccessful. Failed to lock the configuration database on device.
+#     Make sure the user has the necessary privilege to edit the device configuration
+#     and no one else is editing the device configuration.
+#
+# ^^ This could mean a lock on the configuration cannot be achieved.
+# You may need to try some methods of unlocking the configuration
+#   E.g. root@SRX> clear system commit
+# OR reboot the JUNOS Device
+#####################################################################################
+
+  - name: JUNOSSpace-AddDevices-CheckDiscovery
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/job-management/jobs/{{ DISCOVERY_TASK_ID }}"
+      methoed: GET
+      follow_redirects: all
+      return_content: yes
+      headers:
+        Accept: application/vnd.net.juniper.space.job-management.job+json;version=3
+        Cookie: "{{ LOGIN_COOKIE }}"
+      validate_certs: no
+    register: SpaceAddDevicesCheckDiscovery
+    until: SpaceAddDevicesCheckDiscovery.json.job["job-state"] == "DONE"
+    retries: 5
+    delay: 20
+    failed_when: SpaceAddDevicesCheckDiscovery.json.job["job-status"] == "FAILURE"
+
+################################################################################
+# 04. LOGOUT
+################################################################################
+#
+  - name: JUNOS_SPACE//LOGOUT
+    block:
+    - name: JUNOSSpace-Logout
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: OUTPUTLOGOUT
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT
+#    when:
+    ignore_errors: yes
+
+
+
+

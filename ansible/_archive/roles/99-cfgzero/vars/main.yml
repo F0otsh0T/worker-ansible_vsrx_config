@@ -1,0 +1,12 @@
+---
+
+##################################################
+# JUNOS Ansible Module Generic
+#
+NETCONF_PORT: 22
+
+##################################################
+# Role Specific Variables
+#
+DEPLOYMENT_TYPE: "99-cfgzero"
+CONFIG_TYPE: "zero"

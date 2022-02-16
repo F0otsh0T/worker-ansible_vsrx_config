@@ -1,0 +1,1158 @@
+        "content_type": "application/vnd.net.juniper.space.device-management.device-discovery-rules+json;q=\"0.06\";version=\"6\"",
+        "cookies": {},
+        "cookies_string": "",
+        "date": "Wed, 11 Sep 2019 18:22:08 GMT",
+        "expires": "Wed, 11 Sep 2019 18:22:08 GMT",
+        "failed": false,
+        "json": {
+            "device-discovery-rules": {
+                "@total": "34",
+                "@uri": "/api/space/device-management/device-discovery-rules",
+                "device-discovery-rule": [
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/1",
+                        "device-snmp-version": "SNMPV1V2C",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 131080,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 1
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6951962",
+                            "id": 6951962,
+                            "name": "Discover Network Elements-6951962",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 12 Feb 2019 19:29:14 UTC"
+                        },
+                        "discovery-profile-name": "Spacecadet",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 1,
+                        "sharable": true,
+                        "target-details": "10.10.86.70-10.10.86.71"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/3",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 8,
+                                        "keybased": false,
+                                        "username": "spaceadm"
+                                    }
+                                },
+                                "id": 3
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6161571",
+                            "id": 6161571,
+                            "name": "Discover Network Elements-6161571",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Fri, 14 Sep 2018 21:31:06 UTC"
+                        },
+                        "discovery-profile-name": "SDG_Devices",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 32770,
+                        "domain-name": "Global/SDG",
+                        "id": 3,
+                        "sharable": true,
+                        "target-details": "10.20.206.41-10.20.206.42"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32768",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65537,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32768
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6456782",
+                            "id": 6456782,
+                            "name": "Discover Network Elements-6456782",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Thu, 04 Oct 2018 22:05:56 UTC"
+                        },
+                        "discovery-profile-name": "NDC2BDMZFW-node0",
+                        "discovery-type": "IP_ADDRESS",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32768,
+                        "sharable": true,
+                        "target-details": "10.20.198.17"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32769",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65538,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32769
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6456783",
+                            "id": 6456783,
+                            "name": "Discover Network Elements-6456783",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Thu, 04 Oct 2018 22:15:21 UTC"
+                        },
+                        "discovery-profile-name": "NDC2BDMZFW-node1",
+                        "discovery-type": "IP_ADDRESS",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32769,
+                        "sharable": true,
+                        "target-details": "10.20.198.18"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32770",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65539,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32770
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6456826",
+                            "id": 6456826,
+                            "name": "Discover Network Elements-6456826",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Fri, 05 Oct 2018 16:24:53 UTC"
+                        },
+                        "discovery-profile-name": "NDC2CDMZFWs",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32770,
+                        "sharable": true,
+                        "target-details": "10.20.228.17-10.20.228.18"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32771",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65540,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32771
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6457000",
+                            "id": 6457000,
+                            "name": "Discover Network Elements-6457000",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 09 Oct 2018 17:06:51 UTC"
+                        },
+                        "discovery-profile-name": "NDC1EXNFWs",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32771,
+                        "sharable": true,
+                        "target-details": "10.60.219.31-10.60.219.32"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32772",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65541,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32772
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6457012",
+                            "id": 6457012,
+                            "name": "Discover Network Elements-6457012",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 09 Oct 2018 17:23:34 UTC"
+                        },
+                        "discovery-profile-name": "NDC2CCAZFW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32772,
+                        "sharable": true,
+                        "target-details": "10.20.206.209-10.20.206.210"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32773",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65542,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32773
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6457025",
+                            "id": 6457025,
+                            "name": "Discover Network Elements-6457025",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 09 Oct 2018 17:41:49 UTC"
+                        },
+                        "discovery-profile-name": "NDC1ADMZFW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32773,
+                        "sharable": true,
+                        "target-details": "10.60.242.17-10.60.242.18"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32774",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65543,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32774
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6457127",
+                            "id": 6457127,
+                            "name": "Discover Network Elements-6457127",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 10 Oct 2018 17:18:54 UTC"
+                        },
+                        "discovery-profile-name": "NDC1EXNFWs_clone",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32774,
+                        "sharable": true,
+                        "target-details": "10.60.178.197-10.60.178.198"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32775",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65544,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32775
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6457154",
+                            "id": 6457154,
+                            "name": "Discover Network Elements-6457154",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 10 Oct 2018 17:58:35 UTC"
+                        },
+                        "discovery-profile-name": "NDC1ECBFW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32775,
+                        "sharable": true,
+                        "target-details": "10.60.219.37-10.60.219.38"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32776",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65545,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32776
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6457190",
+                            "id": 6457190,
+                            "name": "Discover Network Elements-6457190",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 10 Oct 2018 18:54:43 UTC"
+                        },
+                        "discovery-profile-name": "NDC2CSVC2L2FW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32776,
+                        "sharable": true,
+                        "target-details": "10.20.228.204-10.20.228.205"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32778",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65547,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32778
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6457593",
+                            "id": 6457593,
+                            "name": "Discover Network Elements-6457593",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 23 Oct 2018 17:13:42 UTC"
+                        },
+                        "discovery-profile-name": "NDC2BSVC2L2FW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32778,
+                        "sharable": true,
+                        "target-details": "10.20.202.11-10.20.202.12"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/32779",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 65548,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 32779
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6949372",
+                            "id": 6949372,
+                            "name": "Discover Network Elements-6949372",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 18 Dec 2018 20:54:46 UTC"
+                        },
+                        "discovery-profile-name": "NDC1DSTDMZFW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 32779,
+                        "sharable": true,
+                        "target-details": "10.60.219.34-10.60.219.35"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/65536",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 98304,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 65536
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6489186",
+                            "id": 6489186,
+                            "name": "Discover Network Elements-6489186",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 09 Oct 2018 16:17:56 UTC"
+                        },
+                        "discovery-profile-name": "NDC1ISPAPNFWs",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 65536,
+                        "sharable": true,
+                        "target-details": "10.60.219.28-10.60.219.29"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/98304",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 131078,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 98304
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6949338",
+                            "id": 6949338,
+                            "name": "Discover Network Elements-6949338",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 18 Dec 2018 19:48:44 UTC"
+                        },
+                        "discovery-profile-name": "NDC2BSVC2L2FW-Single",
+                        "discovery-type": "IP_ADDRESS",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 98304,
+                        "sharable": true,
+                        "target-details": "10.20.202.12"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/98305",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 131081,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 98305
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/6952164",
+                            "id": 6952164,
+                            "name": "Discover Network Elements-6952164",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Fri, 15 Feb 2019 22:10:42 UTC"
+                        },
+                        "discovery-profile-name": "TST52A-FNCR",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 98305,
+                        "sharable": true,
+                        "target-details": "10.10.82.18-10.10.82.19"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/98306",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 131082,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 98306
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7673600",
+                            "id": 7673600,
+                            "name": "Discover Network Elements-7673600",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 07 Aug 2019 18:17:59 UTC"
+                        },
+                        "discovery-profile-name": "TST52B-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 98306,
+                        "sharable": true,
+                        "target-details": "10.10.86.70-10.10.86.71"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/98307",
+                        "device-snmp-version": "SNMPV1V2C",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 196609,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 98307
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7504199",
+                            "id": 7504199,
+                            "name": "Discover Network Elements-7504199",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 26 Mar 2019 19:17:55 UTC"
+                        },
+                        "discovery-profile-name": "TST3-EXN",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 98307,
+                        "sharable": true,
+                        "target-details": "10.40.88.159-10.40.88.165"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/98309",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 131089,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 98309
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7703619",
+                            "id": 7703619,
+                            "name": "Discover Network Elements-7703619",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 18 Jun 2019 21:49:26 UTC"
+                        },
+                        "discovery-profile-name": "TST52C-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 98309,
+                        "sharable": true,
+                        "target-details": "10.10.88.70-10.10.88.71"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/131072",
+                        "device-snmp-version": "SNMPV1V2C",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 163842,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 131072
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7110879",
+                            "id": 7110879,
+                            "name": "Discover Network Elements-7110879",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 28 Nov 2018 23:59:59 UTC"
+                        },
+                        "discovery-profile-name": "tst6aexn",
+                        "discovery-type": "IP_ADDRESS",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 131072,
+                        "sharable": true,
+                        "target-details": "10.10.169.106"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/131073",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 131084,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 131073
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7671880",
+                            "id": 7671880,
+                            "name": "Discover Network Elements-7671880",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Fri, 12 Jul 2019 22:37:58 UTC"
+                        },
+                        "discovery-profile-name": "TST52A-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 131073,
+                        "sharable": true,
+                        "target-details": "10.10.81.198-10.10.81.199"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/163841",
+                        "device-snmp-version": "SNMPV1V2C",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 196612,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 163841
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7504230",
+                            "id": 7504230,
+                            "name": "Discover Network Elements-7504230",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 26 Mar 2019 22:54:58 UTC"
+                        },
+                        "discovery-profile-name": "TST3-EXN-2",
+                        "discovery-type": "IP_ADDRESS",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 163841,
+                        "sharable": true,
+                        "target-details": "10.40.88.146"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/163842",
+                        "device-snmp-version": "SNMPV1V2C",
+                        "device-targets": {
+                            "device-target": [
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196613,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163842
+                                },
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196614,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163843
+                                },
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196615,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163844
+                                },
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196616,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163845
+                                },
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196617,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163846
+                                },
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196618,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163847
+                                },
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196619,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163848
+                                },
+                                {
+                                    "device-ssh-credentials": {
+                                        "device-ssh-credential": {
+                                            "credential-type": "CREDENTIAL_BASED",
+                                            "id": 196620,
+                                            "keybased": false,
+                                            "username": "{{SPACE_API_USERNAME}}"
+                                        }
+                                    },
+                                    "id": 163849
+                                }
+                            ]
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7675992",
+                            "id": 7675992,
+                            "name": "Discover Network Elements-7675992",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Fri, 06 Sep 2019 13:56:35 UTC"
+                        },
+                        "discovery-profile-name": "TST3-CNC",
+                        "discovery-type": "IMPORT_BY_CSV",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 163842,
+                        "sharable": true,
+                        "target-details": "C:\\fakepath\\TST3-CNC.csv"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/163843",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 196622,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 163850
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7670282",
+                            "id": 7670282,
+                            "name": "Discover Network Elements-7670282",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 28 May 2019 16:12:12 UTC"
+                        },
+                        "discovery-profile-name": "TST5A-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 163843,
+                        "sharable": true,
+                        "target-details": "10.10.144.141-10.10.144.148"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/196608",
+                        "device-snmp-version": "SNMPV1V2C",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 229376,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 196608
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7373865",
+                            "id": 7373865,
+                            "name": "Discover Network Elements-7373865",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 03 Apr 2019 20:46:49 UTC"
+                        },
+                        "discovery-profile-name": "ztst6afrwl01cnc008",
+                        "discovery-type": "IP_ADDRESS",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 196608,
+                        "sharable": true,
+                        "target-details": "10.10.169.119"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/229376",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 262144,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 229376
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7667894",
+                            "id": 7667894,
+                            "name": "Discover Network Elements-7667894",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 09 Apr 2019 19:02:49 UTC"
+                        },
+                        "discovery-profile-name": "TST6A-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 229376,
+                        "sharable": true,
+                        "target-details": "10.10.169.118-10.10.169.126"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/229377",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 262145,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 229377
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7668200",
+                            "id": 7668200,
+                            "name": "Discover Network Elements-7668200",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 10 Apr 2019 18:45:19 UTC"
+                        },
+                        "discovery-profile-name": "TST5B-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 229377,
+                        "sharable": true,
+                        "target-details": "10.10.145.140-10.10.145.147"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/229380",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 262150,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 229380
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7669725",
+                            "id": 7669725,
+                            "name": "Discover Network Elements-7669725",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Mon, 06 May 2019 20:44:54 UTC"
+                        },
+                        "discovery-profile-name": "TST5A-EXN",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 229380,
+                        "sharable": true,
+                        "target-details": "10.10.144.158-10.10.144.165"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/229381",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 262151,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 229381
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7703620",
+                            "id": 7703620,
+                            "name": "Discover Network Elements-7703620",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 18 Jun 2019 21:50:41 UTC"
+                        },
+                        "discovery-profile-name": "TST52D-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 229381,
+                        "sharable": true,
+                        "target-details": "10.10.90.70-10.10.90.71"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/229382",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 262152,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 229382
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7705828",
+                            "id": 7705828,
+                            "name": "Discover Network Elements-7705828",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Thu, 29 Aug 2019 20:15:34 UTC"
+                        },
+                        "discovery-profile-name": "TST6B-CNC",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 229382,
+                        "sharable": true,
+                        "target-details": "10.10.169.246-10.10.169.254"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/229383",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 262158,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 229383
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7705064",
+                            "id": 7705064,
+                            "name": "Discover Network Elements-7705064",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Tue, 30 Jul 2019 20:53:56 UTC"
+                        },
+                        "discovery-profile-name": "TST6B-EXN",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 229383,
+                        "sharable": true,
+                        "target-details": "10.10.169.225-10.10.169.232"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/229384",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 262154,
+                                        "keybased": false,
+                                        "username": "{{SPACE_API_USERNAME}}"
+                                    }
+                                },
+                                "id": 229384
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7670921",
+                            "id": 7670921,
+                            "name": "Discover Network Elements-7670921",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Mon, 10 Jun 2019 17:07:13 UTC"
+                        },
+                        "discovery-profile-name": "TST5BEXN",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 229384,
+                        "sharable": true,
+                        "target-details": "10.10.145.158-10.10.145.165"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/262144",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 294912,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 262144
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7702002",
+                            "id": 7702002,
+                            "name": "Discover Network Elements-7702002",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 01 May 2019 18:09:38 UTC"
+                        },
+                        "discovery-profile-name": "NDC1AIXCFW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 262144,
+                        "sharable": true,
+                        "target-details": "10.60.165.102-10.60.165.103"
+                    },
+                    {
+                        "@href": "/api/space/device-management/device-discovery-rules/262145",
+                        "device-snmp-version": "NOT_APPLICABLE",
+                        "device-targets": {
+                            "device-target": {
+                                "device-ssh-credentials": {
+                                    "device-ssh-credential": {
+                                        "credential-type": "CREDENTIAL_BASED",
+                                        "id": 294913,
+                                        "keybased": false,
+                                        "username": "spaceadmin"
+                                    }
+                                },
+                                "id": 262145
+                            }
+                        },
+                        "discovery-job-details": {
+                            "@href": "/api/space/job-management/jobs/7702022",
+                            "id": 7702022,
+                            "name": "Discover Network Elements-7702022",
+                            "schedule-string": "",
+                            "scheduled-start-time-string": "Wed, 01 May 2019 19:08:33 UTC"
+                        },
+                        "discovery-profile-name": "NDC2BIXCFW-NEW",
+                        "discovery-type": "IP_RANGE",
+                        "domain-id": 2,
+                        "domain-name": "Global",
+                        "id": 262145,
+                        "sharable": true,
+                        "target-details": "10.20.200.15-10.20.200.16"
+                    }
+                ]
+            }
+        },
+        "msg": "OK (unknown bytes)",
+        "redirected": false,
+        "status": 200,
+        "strict_transport_security": "max-age=63072000; includeSubdomains; preload",
+        "transfer_encoding": "chunked",
+        "url": "https://10.60.164.206:443/api/space/device-management/device-discovery-rules",
+        "x_content_type_options": "nosniff",
+        "x_frame_options": "SAMEORIGIN",
+        "x_xss_protection": "1"
+    }
+}

@@ -1,0 +1,188 @@
+---
+################################################################################
+# Ansible Playbook YAML - By Automation User // MyUser
+################################################################################
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+################################################################################
+
+################################################################################
+# HA/Active-Standby Initial Config
+################################################################################
+- name: 01-JuniperJUNOSInitialConfigBasePrimary
+  connection: local
+  gather_facts: true
+  hosts: primary
+#  hosts: zXXXXXfrwrl01cncXXX
+  roles:
+    - Juniper.junos
+    - 01-cfgbase
+#  serial: 1
+  serial: 0
+  tags:
+    - 01-cfgbase
+    - 01-cfgbaseprimary
+    - primary
+    - cfg
+    - base
+  vars_files:
+    - group_vars/all/vars.yml
+- name: 01-JuniperJUNOSInitialConfigBaseSecondary
+  connection: local
+  gather_facts: true
+  hosts: secondary
+#  hosts: zXXXXXfrwrl01cncXXX
+  roles:
+    - Juniper.junos
+    - 01-cfgbase
+#  serial: 1
+  serial: 0
+  tags:
+    - 01-cfgbase
+    - 01-cfgbasesecondary
+    - secondary
+    - cfg
+    - base
+  vars_files:
+    - group_vars/all/vars.yml
+- name: 02-JuniperJUNOSInstallLicense
+  connection: local
+  gather_facts: true
+  hosts: firewall
+  roles:
+    - Juniper.junos
+    - 02-cfglicense
+  serial: 0
+  tags:
+    - 02-cfglicense
+    - cfg
+    - license
+- name: 03-JuniperJUNOSSpaceAddDevices
+  connection: local
+  gather_facts: true
+  hosts: firewall
+  roles:
+    - Juniper.junos
+    - 03-space_add_devices
+  serial: 0
+  tags:
+    - 03-space_add_devices
+    - ems
+    - space
+  vars_files:
+    - group_vars/all/vars.yml
+- name: 04-JuniperJUNOSSpaceAddPMContext
+  connection: local
+  gather_facts: true
+  hosts: firewall
+  roles:
+    - Juniper.junos
+    - 04-space_add_pm_context
+  serial: 1
+  tags:
+    - 04-space_add_pm_context
+    - ems
+    - space
+  vars_files:
+    - group_vars/all/vars.yml
+- name: 05-JuniperJUNOSSpaceAssignPolicy
+  connection: local
+  gather_facts: true
+  hosts: firewall
+  roles:
+    - Juniper.junos
+    - 05-space_assign_policy
+  serial: 1
+  tags:
+    - 05-space_assign_policy
+    - ems
+    - space
+  vars_files:
+    - group_vars/all/vars.yml
+- name: 06-JuniperJUNOSSpacePublishPolicy
+  connection: local
+  gather_facts: true
+#  hosts: ems
+  hosts: primary
+  roles:
+    - Juniper.junos
+    - 06-space_publish_policy
+  serial: 0
+  tags:
+    - 06-space_publish_policy
+    - ems
+    - space
+  vars_files:
+    - group_vars/all/vars.yml
+- name: 07-JuniperJUNOSSpaceUpdatePolicy
+  connection: local
+  gather_facts: true
+  hosts: firewall
+  roles:
+    - Juniper.junos
+    - 07-space_update_policy
+  serial: 0
+  tags:
+    - 07-space_update_policy
+    - ems
+    - space
+  vars_files:
+    - group_vars/all/vars.yml
+- name: 08-JuniperJUNOSJSALogSource
+  hosts: firewall
+#  hosts: console_servers_732
+#  hosts: firewall
+  connection: local
+  become: no
+  gather_facts: no
+  serial: 0
+  tags:
+#    - 08-jsa_log_source
+    - jsa
+#    - log_source_add
+#    - log_source_rm
+  vars_files:
+    - group_vars/all/vars.yml
+  tasks:
+    - name: ///ROLE/// JSA_LOG_SOURCES
+      include_role:
+        name: jsa_log_source
+      tags:
+        - 08-jsa_log_source
+        - log_source_add
+        - log_source_rm
+#      tags: [ 'log_source_add', 'log_source_rm' ]
+- name: 09-JuniperJUNOSJSADeploy
+  hosts: logs
+#  hosts: console_servers_732
+#  hosts: logs
+  connection: local
+  become: no
+  gather_facts: no
+  serial: 0
+  tags:
+#    - 09-jsa_deploy
+    - jsa
+#    - get_deploy
+#    - full_deploy
+#    - incr_deploy
+  vars_files:
+    - group_vars/all/vars.yml
+  tasks:
+    - name: ///ROLE/// JSA_DEPLOY
+      include_role:
+        name: jsa_deploy
+      tags:
+        - 09-jsa_deploy
+        - get_deploy
+#        - full_deploy
+        - incr_deploy
+#      tags: [ 'get_deploy', 'full_deploy', 'incr_deploy' ]

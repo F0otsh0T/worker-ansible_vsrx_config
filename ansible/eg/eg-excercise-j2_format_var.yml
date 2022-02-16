@@ -1,0 +1,122 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+  vars:
+    LOCATION: "TST6B"
+    STACK: "EXN"
+    PROTECTED_NET:
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.88.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.89.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "2606:ae00:e200:103::/64"
+        inet: 6
+    PNET:
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.88.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.89.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "2606:ae00:e200:103::/64"
+        inet: 6
+
+  tasks:
+################################################################################
+    - name: EGFORMATVARFORSDADDRESSINPUT
+      debug:
+        msg:
+          - "############################################################"
+          - "# For host {{ inventory_hostname }},"
+          - "# The Loop of the Values for Each of the following Keys"
+          - "# {{item.name}}, {{item.prefix}}, {{item.inet}}"
+          - "# name:   {{item.name}}"
+          - "# ip_address: {{item.prefix}}"
+          - "# address_type: NETWORK"
+          - "# address_version: {{item.inet}}"
+          - "############################################################"
+#      with_dict: "{{PROTECTED_NET_LIST_DICT}}"
+      loop: "{{PROTECTED_NET}}"
+      register: LOOPVAR
+
+    - name: PRINTLOOPVAR
+      debug:
+        var: LOOPVAR
+################################################################################
+    - name: J2TEMPLATEJSON
+      template: src=address_json.j2 dest=address_json.log
+#      template: src=address_json.j2 dest=address_json.log
+      register: OUTPUTJ2TEMPLATEJSON
+
+    - name: PRINTJ2TEMPLATEJSON
+      debug:
+        var: OUTPUTJ2TEMPLATEJSON
+
+    - name: SETFACTJ2TEMPLATEJSON
+      set_fact:
+        ADDRESS_JSON: "{{ lookup('template', 'address_json.j2') }}"
+
+    - name: PRINTSETFACTJ2TEMPLATEJSON
+      debug:
+        var: ADDRESS_JSON
+################################################################################
+    - name: J2TEMPLATEXML
+      template: src=address_xml.j2 dest=address_xml.log
+      register: OUTPUTJ2TEMPLATEXML
+
+    - name: PRINTJ2TEMPLATEXML
+      debug:
+        var: OUTPUTJ2TEMPLATEXML
+
+    - name: SETFACTJ2TEMPLATEXML
+      set_fact:
+        ADDRESS_XML: "{{ lookup('template', 'address_xml.j2') }}"
+
+    - name: PRINTSETFACTJ2TEMPLATEXML
+      debug:
+        var: ADDRESS_XML
+################################################################################
+    - name: J2TEMPLATEVAR
+      template: src=address_var.j2 dest=address_var.log
+      register: OUTPUTJ2TEMPLATEVAR
+
+    - name: PRINTJ2TEMPLATEVAR
+      debug:
+        var: OUTPUTJ2TEMPLATEVAR
+
+    - name: SETFACTJ2TEMPLATEVAR
+      set_fact:
+        ADDRESS_VAR: {"{{ lookup('template', 'address_var.j2') }}"}
+
+    - name: PRINTSETFACTJ2TEMPLATEVAR
+      debug:
+        var: ADDRESS_VAR
+
+    - name: SETFACTJ2FILEVAR
+      set_fact:
+        ADDRESS_FILE_VAR: "{{ lookup('file', 'address_var.log') }}"
+
+    - name: PRINTSETFACTJ2FILEVAR
+      debug:
+        var: ADDRESS_FILE_VAR
+
+    - name: INCLUDEVARSJ2VAR
+      include_vars:
+        file: address_var.log
+        name: STUFF
+
+    - name: PRINTSTUFF
+      debug:
+        var: STUFF
+
+    - name: PRINT_PROTECTED_NET
+      debug:
+        var: PROTECTED_NET

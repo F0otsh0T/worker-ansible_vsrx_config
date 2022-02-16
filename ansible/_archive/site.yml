@@ -1,0 +1,71 @@
+---
+################################################################################
+# Ansible Playbook YAML - By Automation User // MyUser
+################################################################################
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+################################################################################
+
+################################################################################
+# HA/Active-Active Initial Config
+################################################################################
+- name: 01-JuniperJUNOSInitialConfigBaseNode0
+  connection: local
+  gather_facts: true
+  hosts: all
+#  hosts: ztst06frwl01tst001
+#  hosts: node0
+#  hosts: zXXXXXfrwrl01cncXXX
+  roles:
+    - Juniper.junos
+    - 01-cfgbase_node0
+  serial: 0
+  tags:
+    - 01-cfgbase_node0
+    - cfg
+  vars_files:
+    - group_vars/all/vars.yml
+#- name: 02-JuniperJUNOSInitialConfigBaseNode1
+#  connection: local
+#  gather_facts: true
+#  hosts: node1
+##  hosts: zXXXXXfrwrl01cncXXX
+#  roles:
+#    - Juniper.junos
+##    - 02-cfgbase_node1
+#    - 01-cfgbase_node0
+#  serial: 1
+#  tags:
+#    - 02-cfgbase_node1
+#    - cfg
+#  vars_files:
+#    - group_vars/all/vars.yml
+#- name: 03-JuniperJUNOSInitialConfigPolicy
+#  connection: local
+#  gather_facts: true
+#  hosts: all
+##  hosts: zXXXXXfrwrl01cncXXX
+#  roles:
+#    - Juniper.junos
+#    - 03-cfgpolicy
+#  serial: 1
+#  tags:
+#    - 03-cfgpolicy
+#    - cfg
+#  vars_files:
+#    - group_vars/all/vars.yml
+- name: test
+  connection: local
+  gather_facts: true
+  hosts: all
+#  hosts: zXXXXXfrwrl01cncXXX
+  roles:
+    - Juniper.junos

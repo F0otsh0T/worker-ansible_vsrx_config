@@ -1,0 +1,18 @@
+        {
+          "update-devices" : {
+            "sd-ids" :
+{% for X in CONTEXT_DEVICE_ID %}
+            {
+              "id" : [ "{{ X.id }}" ]
+            }
+{% endfor %}
+            ,
+            "service-types" : {
+              "service-type" : [ "POLICY" ]
+            },
+            "update-options" : {
+              "enable-policy-rematch-srx-only" : "True",
+              "preserve-session-sc-os" : "True"
+            }
+          }
+        }

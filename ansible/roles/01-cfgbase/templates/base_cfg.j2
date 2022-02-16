@@ -1,0 +1,571 @@
+system {
+    login {
+        class ant-test {
+            idle-timeout 5;
+            permissions [ view view-configuration ];
+        }
+        class superuser-class {
+            idle-timeout 5;
+            permissions all;
+        }
+        class tacacs-adv-class {
+            idle-timeout 5;
+            permissions maintenance;
+        }
+        class tacacs-base-class {
+            idle-timeout 5;
+            permissions view-configuration;
+        }
+        user superuser {
+            full-name superuser;
+            uid 1003;
+            class tacacs-adv-class;
+        }
+        user {{VSRX_MECHUSER}} {
+            full-name "Ansible and Automation MechUser";
+            uid 9997;
+            class super-user;
+            authentication {
+                encrypted-password "{{VSRX_SUPERUSER_PASSWORD}}"; ## SECRET-DATA
+                ssh-rsa "{{VSRX_SUPERUSER_SSHKEY}}"; ## SECRET-DATA
+            }
+        }
+        user {{VSRX_TEST_USER}} {
+            uid 2001;
+            class ant-test;
+            authentication {
+                encrypted-password "{{VSRX_TEST_PASSWORD}}"; ## SECRET-DATA
+                ssh-rsa "ssh-rsa {{VSRX_TEST_SSHKEY}}"; ## SECRET-DATA
+            }
+        }
+        user readonly {
+            full-name "Read Only Account Access";
+            uid 1001;
+            class tacacs-base-class;
+        }
+        user readwrite {
+            full-name "Read / Write Account Access";
+            uid 1002;
+            class tacacs-adv-class;
+        }
+        user {{SPACE_API_USERNAME}} {
+            uid 9999;
+            class super-user;
+            authentication {
+                encrypted-password "{{SPACE_API_PASSWORD}}"; ## SECRET-DATA
+            }
+        }
+        message "\n \n \n    *********************************************************\n    *                                                       *\n    *                      WARNING!!!!!                     *\n    *                                                       *\n    *       This system is restricted to AT&T Mobility      *\n    *         authorized users for business purposes.       *\n    *                                                       *\n    *     Unauthorized access is a violation of the law.    *\n    *   This service may be monitored for administrative    *\n    *                  and security reasons.                *\n    *    By proceeding, you consent to this monitoring.     *\n    *                                                       *\n    *                      WARNING!!!!!                     *\n    *                                                       *\n    *********************************************************\n \n \n \n";
+    }
+    root-authentication {
+        encrypted-password "{{VSRX_ROOT_PASSWORD}}"; ## SECRET-DATA
+    }
+    host-name {{ inventory_hostname }};
+    authentication-order [ password tacplus ];
+    ports {
+        console log-out-on-disconnect;
+    }
+    tacplus-server {
+        10.101.14.118 {
+            port 49205;
+            secret "{{AAA_SECRET}}"; ## SECRET-DATA
+            timeout 5;
+            source-address {{ ansible_host }};
+        }
+        10.101.14.119 {
+            port 49205;
+            secret "{{AAA_SECRET}}"; ## SECRET-DATA
+            timeout 5;
+            source-address {{ ansible_host }};
+        }
+    }
+    accounting {
+        events [ login change-log interactive-commands ];
+        destination {
+            tacplus {
+                server {
+                    10.101.14.118 source-address {{ ansible_host }};
+                }
+            }
+        }
+    }
+    services {
+        ssh {
+            root-login deny;
+            protocol-version v2;
+            max-sessions-per-connection 32;
+        }
+        netconf {
+            ssh;
+        }
+    }
+    syslog {
+        user * {
+            any emergency;
+            match "!(.*Scheduler Oinker*.|.*Frame 0*.|.*ms without yielding*.)";
+        }
+        host {{ JSA_LB_VIP }} {
+            any any;
+            port 514;
+            source-address {{ INT4_IP_V4[inventory_hostname] }};
+            structured-data {
+                brief;
+            }
+        }
+        host 10.55.121.68 {
+            any any;
+            port 1538;
+            structured-data {
+                brief;
+            }
+        }
+        file messages {
+            any notice;
+            authorization info;
+            daemon any;
+            kernel any;
+            archive size 10m files 5 no-world-readable;
+        }
+        file interactive-commands {
+            interactive-commands any;
+        }
+        file firewall-logs {
+            any any;
+            match RT_FLOW;
+        }
+        file authorization-commands {
+            authorization any;
+        }
+        file changelog {
+            change-log any;
+        }
+        file security-logs {
+            security any;
+        }
+        file default-log-messages {
+            any info;
+            match "(FRU Offline)|(FRU Online)|(FRU insertion)|(FRU power)|(FRU removal)|(commit complete)|(copying configuration to juniper.save)|(license add)|(license delete)|(link UP)|(package -X delete)|(package -X update)|(plugged in)|(requested 'commit synchronize' operation)|(requested 'commit' operation)|(unplugged)|Transferred|ifAdminStatus|transfer-file|transitioned|GRES|(AIS_DATA_AVAILABLE)|(AIS_DATA_AVAILABLE)";
+            structured-data;
+        }
+        source-address {{ ansible_host }};
+    }
+    license {
+        autoupdate {
+            url https://ae1.juniper.net/junos/key_retrieval;
+        }
+    }
+    ntp {
+        server 10.60.201.251;
+        server 10.60.201.252;
+    }
+}
+services {
+    flow-monitoring {
+        version9 {
+            template ipv4-jsa {
+                ipv4-template;
+            }
+        }
+    }
+}
+security {
+    log {
+        mode stream;
+        source-address {{ INT4_IP_V4[inventory_hostname] }};
+        stream AAP-JSA {
+            severity info;
+            format sd-syslog;
+            category all;
+            host {
+                {{ JSA_LB_VIP }};
+            }
+        }
+    }
+    forwarding-options {
+        family {
+            inet6 {
+                mode flow-based;
+            }
+        }
+    }
+    screen {
+        ids-option untrust-screen {
+            icmp {
+                ip-sweep;
+                fragment;
+                large;
+                flood;
+                ping-death;
+            }
+            ip {
+                bad-option;
+                record-route-option;
+                timestamp-option;
+                security-option;
+                stream-option;
+                spoofing;
+                source-route-option;
+                unknown-protocol;
+                tear-drop;
+            }
+            tcp {
+                syn-fin;
+                fin-no-ack;
+                tcp-no-flag;
+                syn-frag;
+                port-scan;
+                syn-ack-ack-proxy;
+                syn-flood;
+                land;
+                winnuke;
+            }
+        }
+    }
+    zones {
+        security-zone PROTECTED_NET {
+        screen untrust-screen;
+            host-inbound-traffic {
+                system-services {
+                    ping;
+                }
+                protocols {
+                    vrrp;
+                }
+            }
+            interfaces {
+                {{ INT1 }}.0;
+                {{ INT2 }}.0;
+            }
+        }
+        security-zone DIRECT_NET {
+            host-inbound-traffic {
+                system-services {
+                    ping;
+                }
+                protocols {
+                    bgp;
+                }
+            }
+            interfaces {
+                {{ INT3 }}.0;
+            }
+        }
+        security-zone L3-FW-LOGS {
+            host-inbound-traffic {
+                system-services {
+                    ping;
+                }
+            }
+            interfaces {
+                {{ INT4 }}.0;
+            }
+        }
+    }
+}
+interfaces {
+    {{ INT1 }} {
+        description CNC-PROTECTED-NET_1;
+        mtu 9114;
+        unit 0 {
+            family inet {
+                sampling {
+                    input;
+                }
+                address {{ INT1_IP_V4[inventory_hostname] }}/{{ INT1_IP_V4_MASK[inventory_hostname]}} {
+                    vrrp-group 1 {
+                        virtual-address {{ INT1_IP_V4_GW[inventory_hostname] }};
+                        priority {{ VRRP_PRIORITY }};
+                        accept-data;
+                    }
+                }
+            }
+        }
+    }
+    {{ INT2 }} {
+        description CNC-PROTECTED-NET_2;
+        mtu 9114;
+        unit 0 {
+            family inet {
+                sampling {
+                    input;
+                }
+                address {{ INT2_IP_V4[inventory_hostname] }}/{{ INT2_IP_V4_MASK[inventory_hostname]}} {
+                    vrrp-group 1 {
+                        virtual-address {{ INT2_IP_V4_GW[inventory_hostname] }};
+                        priority {{ VRRP_PRIORITY }};
+                        accept-data;
+                    }
+                }
+            }
+        }
+    }
+    {{ INT3 }} {
+        description CNC-DIRECT-NET_1;
+        mtu 9114;
+        unit 0 {
+            family inet {
+                sampling {
+                    input;
+                }
+                address {{ INT3_IP_V4[inventory_hostname] }}/{{ INT3_IP_V4_MASK[inventory_hostname]}};
+            }
+        }
+    }
+    {{ INT4 }} {
+        description HSL-NET_1;
+        mtu 9114;
+        unit 0 {
+            family inet {
+                address {{ INT4_IP_V4[inventory_hostname] }}/{{ INT4_IP_V4_MASK[inventory_hostname] }};
+            }
+        }
+    }
+    {{ INT0 }} {
+        unit 0 {
+            family inet {
+                address {{ ansible_host }}/{{ INT0_IP_V4_MASK[inventory_hostname] }};
+            }
+        }
+    }
+    lo0 {
+        unit 0 {
+            family inet {
+                filter {
+                    input RE-PROTECT;
+                }
+                address 127.0.0.1/32;
+            }
+            family inet6 {
+                filter {
+                    input RE-PROTECTV6;
+                }
+                address ::1/128;
+            }
+        }
+    }
+}
+snmp {
+    name {{ inventory_hostname }};
+    description "{{ SNMP_DESC[inventory_hostname] }}";
+    location "{{ SNMP_LOC[inventory_hostname] }}";
+    interface {{ INT0 }}.0;
+    filter-duplicates;
+    engine-id {
+        use-mac-address;
+    }
+    client-list SNMP-SERVERS {
+        10.101.172.14/32;
+        10.102.131.233/32;
+        10.102.131.230/32;
+        10.101.172.20/32;
+    }
+    community space {
+        authorization read-only;
+    }
+    community "RORO" {
+        authorization read-only;
+        client-list-name SNMP-SERVERS;
+    }
+    community "RORO" {
+        authorization read-only;
+        client-list-name SNMP-SERVERS;
+    }
+    trap-options {
+        source-address {{ ansible_host }};
+    }
+    trap-group SRX-TRAPS {
+        version v2;
+        categories {
+            chassis;
+            link;
+            routing;
+            startup;
+            rmon-alarm;
+            configuration;
+        }
+        targets {
+            10.103.38.162;
+            10.104.162.4;
+        }
+    }
+    health-monitor {
+        interval 300;
+        rising-threshold 90;
+        falling-threshold 80;
+    }
+}
+forwarding-options {
+    sampling {
+        input {
+            rate 1000;
+            run-length 0;
+        }
+        family inet {
+            output {
+                flow-server {{ JSA_LB_VIP }} {
+                    port 2055;
+                    version9 {
+                        template {
+                            ipv4-jsa;
+                        }
+                    }
+                }
+                inline-jflow {
+                    source-address {{ INT4_IP_V4[inventory_hostname] }};
+                }
+            }
+        }
+    }
+}
+routing-options {
+    static {
+        route 0.0.0.0/0 {
+            next-hop {{ INT0_IP_V4_GW[inventory_hostname] }};
+            retain;
+        }
+    }
+    autonomous-system {{ BGP_AS_01[inventory_hostname] }};
+}
+policy-options {
+    prefix-list PROTECTED-RANGES {
+        {{ PROTECTED_NET[0].prefix }};
+        {{ PROTECTED_NET[1].prefix }};
+    }
+    policy-statement ADV-PROTECTED {
+        term 1 {
+            from {
+                protocol direct;
+                prefix-list PROTECTED-RANGES;
+            }
+            then {
+                community add LOCAL_PREF;
+                accept;
+            }
+        }
+    }
+    community LOCAL_PREF members {{ CV_LOCAL_PREF }};
+}
+firewall {
+    family inet {
+        filter RE-PROTECT {
+            term 1 {
+                from {
+                    protocol tcp;
+                    port [ 1053 ssh 49205 bgp ];
+                }
+                then {
+                    log;
+                    syslog;
+                    accept;
+                }
+            }
+            term 2 {
+                from {
+                    protocol udp;
+                    port [ dhcp domain snmp 3784 ];
+                }
+                then {
+                    log;
+                    syslog;
+                    accept;
+                }
+            }
+            term 3 {
+                from {
+                    protocol vrrp;
+                }
+                then {
+                    log;
+                    syslog;
+                    accept;
+                }
+            }
+            term 4 {
+                from {
+                    protocol icmp;
+                    icmp-type [ echo-request echo-reply ];
+                }
+                then {
+                    log;
+                    syslog;
+                    accept;
+                }
+            }
+            term 5 {
+                from {
+                    source-address {
+                        10.60.201.251/32;
+                        10.60.201.252/32;
+                        127.0.0.1/32;
+                    }
+                    protocol udp;
+                    port ntp;
+                }
+                then {
+                    log;
+                    syslog;
+                    accept;
+                }
+            }
+            term 6 {
+                then {
+                    log;
+                    syslog;
+                    discard;
+                }
+            }
+        }
+    }
+    family inet6 {
+        filter RE-PROTECTV6 {
+            term 1 {
+                from {
+                    next-header icmp6;
+                    icmp-type [ echo-request echo-reply neighbor-advertisement neighbor-solicit router-advertisement router-solicit ];
+                }
+                then {
+                    log;
+                    syslog;
+                    accept;
+                }
+            }
+            term 2 {
+                then {
+                    log;
+                    syslog;
+                    discard;
+                }
+            }
+        }
+    }
+}
+routing-instances {
+    VRNET {
+        instance-type virtual-router;
+        interface {{ INT1 }}.0;
+        interface {{ INT2 }}.0;
+        interface {{ INT3 }}.0;
+        routing-options {
+            graceful-restart;
+        }
+        protocols {
+            bgp {
+                hold-time 9;
+                group CNC {
+                    type external;
+                    family inet {
+                        unicast;
+                    }
+                    export ADV-PROTECTED;
+                    peer-as {{ BGP_PEER_AS_01[inventory_hostname] }};
+                    neighbor {{ BGP_PEER_CNC_DIRECT_01[inventory_hostname] }} {
+                        description PEER-SDNGW-1;
+                    }
+                    neighbor {{ BGP_PEER_CNC_DIRECT_02[inventory_hostname] }} {
+                        description PEER-SDNGW-2;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,67 @@
+#apiVersion: apps/v1beta2
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "workercloudvsrxcnc.fullname" . }}
+  labels:
+    app: {{ template "workercloudvsrxcnc.name" . }}
+    chart: {{ template "workercloudvsrxcnc.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.Deployment.replicaCount }}
+  revisionHistoryLimit: {{ .Values.Deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: {{ template "workercloudvsrxcnc.name" . }}
+      release: {{ .Release.Name }}
+      tier: {{ template "workercloudvsrxcnc.name" . }}
+  strategy:
+    type: {{ .Values.Deployment.strategy }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "workercloudvsrxcnc.name" . }}
+        release: {{ .Release.Name }}
+        tier: {{ template "workercloudvsrxcnc.name" . }}
+    spec:
+      volumes:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.Deployment.image.repository }}:{{ .Values.Deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.Deployment.image.pullPolicy }}
+          securityContext:
+            privileged: {{ .Values.Deployment.securityContext.privileged }}
+          volumeMounts:
+          ports:
+            - name: ssh
+              containerPort: {{ .Values.Deployment.containerPort }}
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /
+#              port: http
+#          initialDelaySeconds: 180
+#          timeoutSeconds: 5
+#          failureThreshold: 6
+#          readinessProbe:
+#            httpGet:
+#              path: /
+#              port: http
+#          initialDelaySeconds: 30
+#          timeoutSeconds: 3
+#          periodSeconds: 5
+          resources:
+{{ toYaml .Values.Deployment.resources | indent 12 }}
+    {{- with .Values.Deployment.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.Deployment.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.Deployment.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

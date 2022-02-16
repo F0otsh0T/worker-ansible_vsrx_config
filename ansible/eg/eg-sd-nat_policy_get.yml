@@ -1,0 +1,86 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: SETFACTNATPOLICYFILTERDEFINED
+      set_fact:
+        FILTER: "?filter=(name%20eq%20'{{ NAT_POLICY_NAME }}')"
+      when: NAT_POLICY_NAME is defined
+
+    - name: SETFACTNATPOLICYFILTERNOTDEFINED
+      set_fact:
+        FILTER: ""
+      when: NAT_POLICY_NAME is not defined
+
+    - name: GETNATPOLICY
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/policy-management/nat/policies{{ FILTER }}"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.policy-management.nat.policies+json;version=1;q=0.01"
+#          Accept: "application/vnd.juniper.sd.policy-management.nat.policies+xml;version=1;q=0.01"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+      register: OUTPUTGETNATPOLICY
+
+    - name: PRINTOUTPUTGETNATPOLICY
+      debug:
+        var: OUTPUTGETNATPOLICY
+
+    - name: SETFACTNATPOLICYID
+      set_fact:
+        NATPOLICYID: "{{ OUTPUTGETNATPOLICY.json.policies.policy[0].id }}"
+
+    - name: PRINTSETFACTNATPOLICYID
+      debug:
+        var: NATPOLICYID
+
+    - name: SETFACTNATPOLICYNAME
+      set_fact:
+        NATPOLICYNAME: "{{ OUTPUTGETNATPOLICY.json.policies.policy[0].name }}"
+
+    - name: PRINTSETFACTNATPOLICYNAME
+      debug:
+        var: NATPOLICYNAME
+
+    - name: SETFACTNATPOLICYURI
+      set_fact:
+        NATPOLICYURI: "{{ OUTPUTGETNATPOLICY.json.policies.policy[0].uri }}"
+
+    - name: PRINTSETFACTNATPOLICYURI
+      debug:
+        var: NATPOLICYURI

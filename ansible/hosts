@@ -1,0 +1,36 @@
+# E.g.
+#
+#zsde1frwl01cnc001 ansible_host=172.17.32.191 os_vmi_c2x=zsde1frwl01cnc__1
+#^^^^^^^^^^^^^^^^^ {{ inventory_hostname }}
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^ {{ ansible_[/deprecated/ssh]_host }}
+#
+
+################################################################################
+# STATIC HOST ENTRIES
+# {
+
+[ems]
+space ansible_host=10.60.164.206
+
+[logs]
+jsa ansible_host=10.10.168.5
+
+# }
+################################################################################
+
+################################################################################
+# DYNAMIC HOST ENTRIES
+# {
+
+[firewall:children]
+primary
+secondary
+
+[primary]
+ztst55bfrwl01cnc001 ansible_host=10.10.169.232
+
+[secondary]
+ztst55bfrwl01cnc002 ansible_host=10.10.169.230
+
+# }
+################################################################################

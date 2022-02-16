@@ -1,0 +1,34 @@
+---
+  people:
+    - name: Mike
+      fav_colour: Blue
+    - name: Kyle
+      fav_colour: Yellow
+    - name: Shea
+      fav_colour: Blue
+    - name: Aly
+      fav_colour: Yellow
+    - name: Daniyal
+      fav_colour: Yellow
+    - name: Tim
+      fav_colour: Orange
+
+  colours:
+    - name: Blue
+      things:
+        - Sky
+        - Sea
+        - Jeans
+    - name: Yellow
+      things:
+        - Egg yolk
+        - Taxi
+        - Banana
+        - Lemon
+        - Sun
+    - name: Orange
+      things:
+        - Pumpkin
+        - Basketball
+        - Carrots
+        - Oranges

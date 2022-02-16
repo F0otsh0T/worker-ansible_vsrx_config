@@ -1,0 +1,34 @@
+---
+################################################################################
+# Ansible Playbook YAML - By Automation User // MyUser
+################################################################################
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+################################################################################
+
+################################################################################
+# HA/Active-Standby Initial Config
+################################################################################
+- name: 01-TEST
+  connection: local
+  gather_facts: true
+  hosts: ems
+#  hosts: zXXXXXfrwrl01cncXXX
+  roles:
+    - Juniper.junos
+    - 00-space_get_devices
+#  serial: 1
+  serial: 0
+  tags:
+    - 00-space_get_devices
+    - test
+  vars_files:
+    - group_vars/all/vars.yml

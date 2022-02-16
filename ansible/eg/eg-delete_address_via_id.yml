@@ -1,0 +1,140 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+  vars:
+    LOCATION: "TST6B"
+    STACK: "EXN"
+    PNET:
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.88.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.89.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "2606:ae00:e200:103::/64"
+        inet: 6
+    PROTECTED_NET:
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.88.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "192.168.89.0/24"
+        inet: 4
+      - name: "PROTECTED_NET_{{ LOCATION }}_{{ STACK }}"
+        prefix: "2606:ae00:e200:103::/64"
+        inet: 6
+    USER: "{{username}}"
+    PASSWORD: "@!T3stME!"
+#    ID: "9766164"
+    ID: "9766163"
+#    ID: ""
+
+  tasks:
+################################################################################
+# LOGIN
+################################################################################
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: "{{USER}}"
+        password: "{{PASSWORD}}"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+################################################################################
+# FORMAT ADDRESS OBJECT(S)
+################################################################################
+    - name: FORMATADDRESSVAR
+      template: src=address_var.j2 dest=address_var.log
+      register: OUTPUTFORMATADDRESSVAR
+
+    - name: PRINTOUTPUTFORMATADDRESSVAR
+      debug:
+        var: OUTPUTFORMATADDRESSVAR
+
+    - name: INPUTADDRESSVAR
+      include_vars:
+        file: address_var.log
+        name: READADDRESSVAR
+
+    - name: PRINTINPUTADDRESSVAR
+      debug:
+        var: READADDRESSVAR
+
+    - name: SETADDRESSVAR
+      set_fact:
+        ADDRESS_VAR: "{{ READADDRESSVAR.json }}"
+
+    - name: PRINTSETADDRESSVAR
+      debug:
+        var: ADDRESS_VAR
+
+################################################################################
+# CREATE ADDRESSES
+################################################################################
+    - name: DELETEADDRESS
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses/{{ ID }}"
+        method: DELETE
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 204, 400, 500
+        validate_certs:  no
+        headers:
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+#      loop: "{{ ADDRESS_VAR }}"
+      register: OUTPUTDELETEADDRESS
+
+    - name: DEBUGOUTPUTDELETEADDRESS
+      debug:
+        var: OUTPUTDELETEADDRESS
+
+################################################################################
+# DEBUG LOOP
+################################################################################
+#    - name: DEBUG_LOOP
+#      debug:
+#        msg:
+#          - "{{ item.json.address.name }}"
+#          - "{{ item.json.address.uuid }}"
+#          - "{{ item.json.address.uri }}"
+#      loop: "{{ OUTPUTCREATEADDRESS.results }}"
+
+################################################################################
+# LOGOUT
+################################################################################
+    - name: LOGOUT
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+      register: OUTPUTLOGOUT
+
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT

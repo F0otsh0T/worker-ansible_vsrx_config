@@ -1,0 +1,115 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: CREATEQUEUE
+      uri:
+        url: "https://10.60.164.206:443/api/hornet-q/queues"
+        method: POST
+        status_code: 201, 412
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        force_basic_auth: yes
+        user: {{username}}
+        password: "@!T3stME!"
+        headers:
+          content-type: application/hornetq.jms.queue+xml
+        body: <queue name="{{SPACE_TEST_QUEUE}}"><durable>false</durable></queue>
+      register: OUTPUTCREATEQUEUE
+
+    - name: DEBUGCREATEQUEUE
+      debug:
+        msg: "{{ OUTPUTCREATEQUEUE }}"
+#        msg: "{{ OUTPUTGETDEVICEID.json }}"
+#        var: OUTPUTGETDEVICEID
+#        var: OUTPUTGETDEVICEID.json
+#        verbosity: 1
+
+    - name: CREATEDISCOVERYPROFILE
+      uri:
+        url: "https://10.60.164.206:443/api/space/device-management/device-discovery-rules"
+        method: POST
+        validate_certs: no
+        status_code: 200, 202, 500
+        return_content: yes
+        force_basic_auth: yes
+        user: "{{username}}"
+        password: "@!T3stME!"
+        headers:
+          Accept: application/vnd.net.juniper.space.job-management.task+json;version=1
+#          Accept: application/vnd.net.juniper.space.job-management.task+xml;version=1
+          content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+json;version=6;charset=UTF-8
+#          content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+xml;version=6;charset=UTF-8
+        body_format: json
+        body: >
+          {
+          "add-device-discovery-rule-by-ip-request" : {
+          "discovery-profile-name" : "ztst06frwl01exn002" ,
+          "use-ping" : "false" ,
+          "use-nat" : "false" ,
+          "use-snmp" : "false" ,
+          "sharable" : "false" ,
+          "device-targets" : {
+          "device-target" : {
+          "ip-address" : "10.10.169.232" ,
+          "device-ssh-credentials" : {
+          "@total" : "1" ,
+          "device-ssh-credential" : {
+          "username" : "{{VSRX_MECHUSER}}" ,
+          "keybased" : "true" ,
+          "credential-type" : "CUSTOM_KEY_BASED" ,
+          "private-key" : "-----BEGIN RSA PRIVATE KEY-----
+          {{PRIVATE KEY}}
+                           -----END RSA PRIVATE KEY-----
+
+
+          MIIEpAIBAAKCAQEA3qBzmci/5vc0C9xVgtmKxygVELsbSTrityFVoRHPp4GLzXdoiPoVuYvFckUM7rJgLB05RPtRAgJa1FWYjAUAcVZftYTPkicdzm1Lrgfs08TDeHpL4Kt6KqlaXH8oXsYhD1Eac3ifidkeqMQm0Byb1N3t4RKrCFbRobxh0q96DKDQj8g/9MGLC7FstjIQWl89JCmBV/XuwkUXso15ZXZInWInqf2hy3Z3XzG0J3W7jWNHs3O110gpLg+2HfCYXoIHf7NeQBEEHVU4Z1YKPnwvA7+ecRb1EBogBdy9tJ4/Kpt1kj5f+TnD3P2Y/mcQ5Q9CyRU3TmFLrxn8y15eKlbpWwIDAQABAoIBADCNg8i1TIz9ut8fVZLtCOQ4bKeydtf4vLs9zOQM82HP0gKkmSrOh/BoeE5cmt5wDqNwWC4gNWGfy9llNZjL+nW9ZbA73907JLgBhDDXT6I71nmvCl9cZo9pUei8XryUr18czA0E8J5quNILvX9DzgSVxiyBGsX90UhZwmfll1OrUszjK/RiNvTf5B3p2N+9KQUSwFy1TexAQV5XTQLxVl43Wh4ezXV+lP3rXiU4u5jW6LSQKoQ8e9Z/xfgaKrpUelZL8X3rWe632DFFCFXqEVd2ln6D4VNwRC8Pbc/KgiLLC1VL/eni/ZZR4JePA6su3Z33YhKBhQgWG95wtxdNjokCgYEA8g2KqHAXl+DYNuQJqiQYW5w9yYptsbViObw933XvUDAEImHQxx4E2Fb8ABDv2JmDbuNgLLsm2LnUH8uUcn2HS2sxVzBPHmk9f0KrarJy6W6jGdBY+YjNh8mxKK8Aacq42+uTiB5eKIX9ipssoryecawi+Fda/YBap/Fq/rf2qlcCgYEA63RcNFFhzH8IQyHYCXoazoFjLPeusyBxEXaPBHJ8N+S2XnOg3tPYEApoCCapsY/noN5jr26S51XhfLYe/ENTBfdqaC0900EJihbfAG2G27OrKTWAyLEXsVcY4q30fNFdfACguEMnjuwLzqu9DNg+gkEpe3zcpyu8YIBiyWzP3p0CgYBYle4mIQfxdL+Mrz5+P0GO3YqbZQcqX5i4SpVWYAIalcgdkTDofqsFRihqGci9u8knXx3GoSPhc3kXvdjxYdGPH4bqQurh1WBFX+/+V5rIpc4ZV3AIuzGFPaKRoiKDlUa8beYLjhmluQwGmy3lzSQrs/UEcGwDlOMYzbj7yfYDdwKBgQCHmzezhh+OeKdYirhzFNk1kD1/W5NJZWjZhu/tvsYeJuKF2ZCQZXAuJOAvuZzIQDpGY28ETenbxJGekwGbhmbdq9aj81KFRhLpbiy3gV1HUd5FWKQ4cg5UO/aAL3H9JVPzJCVsmnjBDt/qAu1Z5X1y5XavwYUP3teauLasjbfW3QKBgQCLH09uCDrrlO6OQNG1eSqL3weFR6gpyMG6AZOBt4DFHm0KDuQmEgc5uxjHnCtEs+W8HhryQ+X0CjqCZS+87jyHODbg48c/Ku9Z8KwZuZScMCoN9DQbzfEB98lf5EFGEAM0k8ekbfXYgiWyMKTW9xS+uFMoUHkmyTVcrFrUUxtGiQ=="
+          }
+          } ,
+          }
+          } ,
+          "device-snmp-version" : "NOT_APPLICABLE",
+          "discovery-action-additional-params": {
+          "discovery-action-additional-param": {
+          "parameter": "import-policy",
+          "parameter-value": "false"
+          }
+          }
+          }
+          }
+      register: OUTPUTCREATEDISCOVERYPROFILE
+
+    - name: DEBUGCREATEDISCOVERYPROFILE
+      debug:
+        msg: "{{ OUTPUTCREATEDISCOVERYPROFILE }}"

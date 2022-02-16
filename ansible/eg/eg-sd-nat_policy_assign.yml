@@ -1,0 +1,193 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: "application/vnd.net.juniper.space.user-management.user-ref+json;version=1"
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: GETDEVICEID
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/device-management/devices?filter=(name%20eq%20'{{ inventory_hostname }}')"
+        method: GET
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: "application/vnd.juniper.sd.device-management.devices+json;version=2;q=0.02"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+      register: OUTPUTGETDEVICEID
+
+    - name: PRINTOUTPUTGETDEVICEID
+      debug:
+        msg: "{{ OUTPUTGETDEVICEID }}"
+#        msg: "{{ OUTPUTGETDEVICEID.json }}"
+#        var: OUTPUTGETDEVICEID
+#        var: OUTPUTGETDEVICEID.json
+#        verbosity: 1
+
+    - name: SETFACTDEVICEID
+      set_fact:
+        DEVICE_ID: "{{ OUTPUTGETDEVICEID.json.devices.device[0].id }}"
+
+    - name: PRINTSETFACTDEVICEID
+      debug:
+        var: DEVICE_ID
+
+    - name: SETFACTDEVICENAME
+      set_fact:
+        DEVICE_NAME: "{{ OUTPUTGETDEVICEID.json.devices.device[0].name }}"
+
+    - name: PRINTSETFACTDEVICENAME
+      debug:
+        var: DEVICE_NAME
+
+    - name: SETFACTNATPOLICYFILTERDEFINED
+      set_fact:
+        FILTER: "?filter=(name%20eq%20'{{ NAT_POLICY_NAME }}')"
+      when: NAT_POLICY_NAME is defined
+
+    - name: SETFACTNATPOLICYFILTERNOTDEFINED
+      set_fact:
+        FILTER: ""
+      when: NAT_POLICY_NAME is not defined
+
+    - name: GETNATPOLICY
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/policy-management/nat/policies{{ FILTER }}"
+        method: GET
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.policy-management.nat.policies+json;version=1;q=0.01"
+#          Accept: "application/vnd.juniper.sd.policy-management.nat.policies+xml;version=1;q=0.01"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+      register: OUTPUTGETNATPOLICY
+
+    - name: PRINTOUTPUTGETNATPOLICY
+      debug:
+        var: OUTPUTGETNATPOLICY
+
+    - name: SETFACTNATPOLICYID
+      set_fact:
+        NATPOLICYID: "{{ OUTPUTGETNATPOLICY.json.policies.policy[0].id }}"
+
+    - name: PRINTSETFACTNATPOLICYID
+      debug:
+        var: NATPOLICYID
+
+    - name: SETFACTNATPOLICYNAME
+      set_fact:
+        NATPOLICYNAME: "{{ OUTPUTGETNATPOLICY.json.policies.policy[0].name }}"
+
+    - name: PRINTSETFACTNATPOLICYNAME
+      debug:
+        var: NATPOLICYNAME
+
+    - name: SETFACTNATPOLICYURI
+      set_fact:
+        NATPOLICYURI: "{{ OUTPUTGETNATPOLICY.json.policies.policy[0].uri }}"
+
+    - name: PRINTSETFACTNATPOLICYURI
+      debug:
+        var: NATPOLICYURI
+
+    - name: ASSIGNNATPOLICY
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/policy-management/nat/policies/{{ NATPOLICYID }}/assign-devices"
+        method: POST
+        force_basic_auth: yes
+        status_code: 200, 204
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        headers:
+          Content-Type: "application/vnd.juniper.sd.policy-management.assign-devices+json;version=1;charset=UTF-8"
+#          Content-Type: "application/vnd.juniper.sd.policy-management.assign-devices+xml;version=1;charset=UTF-8"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+          Access-Control: "assignDevicesToNATPolicy"
+        body_format: json
+        body: >
+          {
+            "assign-devices" : {
+              "add-list" : {
+                "device" : [ {
+                  "id" : "{{ DEVICE_ID }}",
+                  "name" : "{{ DEVICE_NAME }}"
+                } ]
+              }
+            }
+          }
+      register: OUTPUTASSIGNNATPOLICY
+
+    - name: PRINTOUTPUTASSIGNNATPOLICY
+      debug:
+        var: OUTPUTASSIGNNATPOLICY
+
+    - name: PUBLISHNATPOLICY
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/policy-management/nat/provisioning/publish-policy?update=true"
+        method: POST
+        force_basic_auth: yes
+        status_code: 200
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        headers:
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+          Accept: "application/vnd.juniper.sd.fwpolicy-provisioning.monitorable-task-instances+json;version=1;q=0.01"
+#          Accept: "application/vnd.juniper.sd.fwpolicy-provisioning.monitorable-task-instances+xml;version=1;q=0.01"
+          Content-Type: "application/vnd.juniper.sd.fwpolicy-provisioning.publish+json;version=1;charset=UTF-8"
+#          Content-Type: "application/vnd.juniper.sd.fwpolicy-provisioning.publish+xml;version=1;charset=UTF-8"
+          Access-Control: "publishNATPolicy"
+        body_format: json
+        body: >
+          {
+            "publish" : {
+              "policy-ids" : {
+                "policy-id" : [ "{{ NATPOLICYID }}" ]
+              },
+              "delete-oldest-snapshot" : "false"
+            }
+          }
+      register: OUTPUTPUBLISHNATPOLICY
+
+    - name: PRINTPUBLISHNATPOLICY
+      debug:
+        var: OUTPUTPUBLISHNATPOLICY
+
+
+
+
+

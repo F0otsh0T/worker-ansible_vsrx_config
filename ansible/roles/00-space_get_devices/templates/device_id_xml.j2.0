@@ -1,0 +1,15 @@
+        <?xml version="1.0" encoding="UTF-8"?>
+          <update-devices>
+            <sd-ids>
+{% for X in CONTEXT_DEVICE_ID %}
+              <id>{{ X.id }}</id>
+{% endfor %}
+            </sd-ids>
+            <service-types>
+              <service-type>POLICY</service-type>
+            </service-types>
+          <update-options>
+            <enable-policy-rematch-srx-only>true</enable-policy-rematch-srx-only>
+            <preserve-session-sc-os>true</preserve-session-sc-os>
+          </update-options>
+        </update-devices>

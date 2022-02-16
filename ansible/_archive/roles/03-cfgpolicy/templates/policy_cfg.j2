@@ -1,0 +1,37 @@
+security {
+    policies {
+        from-zone DIRECT_NET to-zone PROTECTED_NET {
+            policy DIRECT-99999 {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    deny;
+                    log {
+                        session-init;
+                        session-close;
+                    }
+                }
+            }
+        }
+        from-zone PROTECTED_NET to-zone DIRECT_NET {
+            policy PROTECTED-99999 {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    deny;
+                    log {
+                        session-init;
+                        session-close;
+                    }
+                }
+            }
+        }
+    }
+}
+

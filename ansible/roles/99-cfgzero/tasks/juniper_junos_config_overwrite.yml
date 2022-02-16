@@ -1,0 +1,49 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Tasks:
+#   - JUNOSInstallConfig: Upload and Apply Config
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConfConnectivity
+    wait_for:
+      host: "{{ ansible_host }}"
+      port: "{{ NETCONF_PORT }}"
+      timeout: 60
+
+################################################################################
+# Juniper.junos_install_config overwrite for base
+################################################################################
+  - name: JuniperJUNOSConfigOverwrite
+    juniper_junos_config:
+      diff: "yes"
+      diffs_file: "{{ OUTPUT_DIR }}/diff.juniper_junos_config_overwrite_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+      format: "text"
+      load: "overwrite"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_config_overwrite_{{CONFIG_TYPE}}.{{ inventory_hostname }}"
+#      passwd: "{{ JUNOS_PASSWORD }}"
+      provider: "{{ PROVIDER_JUNIPER_JUNOS_VARS }}"
+#      src: ""
+      template: "roles/{{ DEPLOYMENT_TYPE }}/templates/{{ CONFIG_TYPE }}_cfg.j2"
+      vars:
+        ansible_host: "{{ ansible_host }}"
+        inventory_hostname: "{{ inventory_hostname }}"
+        INT0_IP_V4_MASK: "{{ INT0_IP_V4_MASK }}"
+        INT0_IP_V4_GW: "{{ INT0_IP_V4_GW }}"
+    register: vSRXJuniperJUNOSConfigOverwrite
+##########
+  - name: DebugvSRXJuniperJUNOSConfigOverwrite
+    debug:
+      msg: "{{ vSRXJuniperJUNOSConfigOverwrite }}"
+##########
+  - name: CopyDebugvSRXJuniperJUNOSConfigOverwrite
+    copy:
+      content: "{{ vSRXJuniperJUNOSConfigOverwrite }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_config_overwrite_{{CONFIG_TYPE}}.{{ inventory_hostname }}"

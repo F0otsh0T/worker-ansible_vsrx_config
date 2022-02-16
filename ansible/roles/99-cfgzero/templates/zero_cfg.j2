@@ -1,0 +1,56 @@
+##
+system {
+    host-name zero;
+    root-authentication {
+        encrypted-password "{{VSRX_ROOT_PASSWORD}}"; ## SECRET-DATA
+    }
+    login {
+        message "THIS DEVICE MANAGED BY JUNOS SPACE - https://10.60.164.206/mainui/ \nFOR ACCESS, REQUEST GTAC Domain WTC-JUNOSSPACE_TL here: https://gtac-web.ipcoe.att.com/ \n \n \n    *********************************************************\n    *                                                       *\n    *                      WARNING!!!!!                     *\n    *                                                       *\n    *       This system is restricted to AT&T Mobility      *\n    *         authorized users for business purposes.       *\n    *                                                       *\n    *     Unauthorized access is a violation of the law.    *\n    *   This service may be monitored for administrative    *\n    *                  and security reasons.                *\n    *    By proceeding, you consent to this monitoring.     *\n    *                                                       *\n    *                      WARNING!!!!!                     *\n    *                                                       *\n    *********************************************************\n \n \n \n";
+        user {{VSRX_MECHUSER}} {
+            full-name "Ansible and Automation MechUser";
+            uid 9997;
+            class super-user;
+            authentication {
+                encrypted-password "{{VSRX_SUPERUSER_PASSWORD}}"; ## SECRET-DATA
+                ssh-rsa "{{VSRX_SUPERUSER_SSHKEY}}"; ## SECRET-DATA
+            }
+        }
+        user {{SPACE_API_USERNAME}} {
+            uid 9999;
+            class super-user;
+            authentication {
+            }
+                encrypted-password "{{SPACE_API_PASSWORD}}"; ## SECRET-DATA
+        }
+    }
+    services {
+        ssh {
+            max-sessions-per-connection 32;
+        }
+        netconf {
+            ssh;
+        }
+    }
+    license {
+        autoupdate {
+            url https://ae1.juniper.net/junos/key_retrieval;
+        }
+    }
+}
+interfaces {
+    fxp0 {
+        unit 0 {
+            family inet {
+                address {{ ansible_host }}/{{ INT0_IP_V4_MASK[inventory_hostname] }};
+            }
+        }
+    }
+}
+routing-options {
+    static {
+        route 0.0.0.0/0 {
+            next-hop {{ INT0_IP_V4_GW[inventory_hostname] }};
+            retain;
+        }
+    }
+}

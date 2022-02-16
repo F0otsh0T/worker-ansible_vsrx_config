@@ -1,0 +1,52 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Tasks:
+#   - JUNOSGetFacts: Get License Info
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConfConnectivity
+    wait_for:
+      host: "{{ ansible_host }}"
+      port: "{{ NETCONF_PORT }}"
+      timeout: 60
+
+################################################################################
+# Post Update Check Facts & Record Output
+################################################################################
+  - name: JuniperJUNOSFacts
+    junos_get_facts:
+      config_format: "xml"
+      host: "{{ ansible_host }}"
+      logdir: "{{ DEBUG_DIR }}"
+      logfile: "{{ LOG_DIR }}/log.juniper_junos_facts.{{ inventory_hostname }}"
+#      passwd: "{{ JUNOS_PASSWORD }}"
+      port: "{{ NETCONF_PORT }}"
+      savedir: "{{ OUTPUT_DIR }}"
+      ssh_private_key_file: "{{ SSH_PRIVATE_KEY_FILE }}"
+      user: "{{ JUNOS_USERNAME }}"
+    register: SRXINFO
+################################################################################
+  - name: DebugSRXINFO
+    debug:
+      msg: "{{ SRXINFO }}"
+################################################################################
+  - name: CopyDebugSRXINFO
+    copy:
+      content: "{{ SRXINFO }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_facts.{{ inventory_hostname }}"
+################################################################################
+  - name: DebugSRXINFO.facts
+    debug:
+      msg: "{{ SRXINFO.facts }}"
+################################################################################
+  - name: CopyDebugSRXINFO.facts
+    copy:
+      content: "{{ SRXINFO.facts }}"
+      dest: "{{ DEBUG_DIR }}/deb.juniper_junos_facts.{{ inventory_hostname }}"

@@ -1,0 +1,91 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: CREATEQUEUE
+      uri:
+        url: "https://10.60.164.206:443/api/hornet-q/queues"
+        method: POST
+        status_code: 201, 412
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        force_basic_auth: yes
+        user: {{username}}
+        password: "@!T3stME!"
+        headers:
+          content-type: application/hornetq.jms.queue+xml
+        body: <queue name="{{SPACE_TEST_QUEUE}}"><durable>false</durable></queue>
+      register: OUTPUTCREATEQUEUE
+
+    - name: DEBUGCREATEQUEUE
+      debug:
+        msg: "{{ OUTPUTCREATEQUEUE }}"
+#        msg: "{{ OUTPUTGETDEVICEID.json }}"
+#        var: OUTPUTGETDEVICEID
+#        var: OUTPUTGETDEVICEID.json
+#        verbosity: 1
+
+    - name: CREATEDISCOVERY
+      uri:
+        url: "https://10.60.164.206:443/api/space/device-management/discover-devices?queue=http://127.0.0.1:8080/api/hornet-q/queues/jms.queue.{{SPACE_TEST_QUEUE}}"
+        method: POST
+        validate_certs: no
+        status_code: 202
+        return_content: yes
+        force_basic_auth: yes
+        user: "{{username}}"
+        password: "@!T3stME!"
+        headers:
+          Accept: application/vnd.net.juniper.space.device-management.discover-devices+json;version=1
+          content-type: application/vnd.net.juniper.space.device-management.discover-devices+xml;version=1;charset=UTF-8
+        body: >
+          <?xml version="1.0" encoding="UTF-8"?>
+          <systemDiscoveryRule>
+          <ipAddressDiscoveryTarget>
+          <exclude>false</exclude>
+          <ipAddress>10.10.169.232</ipAddress>
+          </ipAddressDiscoveryTarget>
+          <usePing>true</usePing>
+          <useSnmp>false</useSnmp>
+          <manageDiscoveredSystemsFlag>true</manageDiscoveredSystemsFlag>
+          <sshCredential>
+          <userName>{{SPACE_API_USERNAME}}</userName>
+          <password></password>
+          </sshCredential>
+          </systemDiscoveryRule>
+      register: OUTPUTCREATEDISCOVERY
+
+    - name: DEBUGCREATEDISCOVERY
+      debug:
+        msg: "{{ OUTPUTCREATEDISCOVERY }}"

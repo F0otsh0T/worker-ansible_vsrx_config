@@ -1,0 +1,6 @@
+---
+device_ip: 100.123.12.0
+device_user: jsuser
+device_password: {{JUNOS_SPACE_PASSWORD}}
+
+queue_name: {{SPACE_TEST_QUEUE}}

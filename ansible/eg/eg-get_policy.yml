@@ -1,0 +1,55 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 2
+
+    - name: GETPOLICY
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/policy-management/firewall/policies?filter=(name%20eq%20'{{ MNS-GLOBAL-EXN }}')"
+        method: GET
+        status_code: 302, 200, 400
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.juniper.sd.policy-management.firewall.policies+json;version=2;q=0.02
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+      register: OUTPUTPOLICY
+
+    - name: PRINTOUTPUTPOLICY
+      debug:
+        msg: "{{ OUTPUTPOLICY }}"
+#        msg: "{{ OUTPUTGETDEVICEID.json }}"
+#        var: OUTPUTGETDEVICEID
+#        var: OUTPUTGETDEVICEID.json
+#        verbosity: 1

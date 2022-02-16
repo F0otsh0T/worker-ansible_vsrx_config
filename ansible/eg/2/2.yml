@@ -1,0 +1,70 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+#  vars_files:
+#    - /var/tmp/git/afw-worker-nc_vsrx_cnc/ansible/group_vars/all/vars.yml
+  vars:
+    LOCATION: "TST6B"
+    STACK: "EXN"
+    VVVV: "FRWL"
+    PPP: "CNC"
+    PROTECTED_NET:
+      - name: PROTECTED_NET_{{ LOCATION }}_{{ VVVV }}_{{ PPP }}
+        prefix: 192.168.88.0/24
+        inet: 4
+      - name: PROTECTED_NET_{{ LOCATION }}_{{ VVVV }}_{{ PPP }}
+        prefix: 192.168.89.0/24
+        inet: 4
+      - name: PROTECTED_NET_{{ LOCATION }}_{{ VVVV }}_{{ PPP }}
+        prefix: 2606:ae00:e200:103::/64
+        inet: 6
+
+  tasks:
+################################################################################
+    - name: SETFACTPROTECTED_NET
+      set_fact:
+        PROTECTED_NET: "{{ PROTECTED_NET }}"
+      register: OUTPUTSETFACTPROTECTED_NET
+    - name: DEBUGOUTPUTSETFACTPROTECTED_NET
+      debug:
+        var: OUTPUTSETFACTPROTECTED_NET
+    - name: DEBUGPROTECTED_NET
+      debug:
+        var: PROTECTED_NET
+    - name: DEBUGPROTECTED_NET
+      debug:
+        var: PROTECTED_NET
+
+################################################################################
+    - name: J2TEMPLATEJSON
+      template:
+        src: 2.j2
+        dest: 2.log
+      register: OUTPUTJ2TEMPLATEJSON
+
+    - name: PRINTJ2TEMPLATEJSON
+      debug:
+        var: OUTPUTJ2TEMPLATEJSON
+
+    - name: SETFACTJ2TEMPLATEJSON
+      set_fact:
+        ADDRESS_JSON: "{{ lookup('template', '2.j2') }}"
+
+    - name: PRINTSETFACTJ2TEMPLATEJSON
+      debug:
+        var: ADDRESS_JSON
+
+
+
+
+
+
+
+
+
+
+

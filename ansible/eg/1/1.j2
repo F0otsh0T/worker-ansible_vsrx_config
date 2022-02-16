@@ -1,0 +1,20 @@
+{% set count = namespace(ipv4=0, ipv6=0) %}
+ADDRESS_INPUT:
+{% for PREFIX in PNET %}
+{% if PNET %}
+{% if PREFIX.inet == 4 %}
+{% set count.ipv4 = count.ipv4 + 1 %}
+  - "name": "{{username}}_{{ PREFIX.name }}_V{{ PREFIX.inet }}_{{ count.ipv4 }}"
+    "address_type": "NETWORK"
+    "ip_address": "{{ PREFIX.prefix }}"
+    "address_version": "IPV{{ PREFIX.inet }}"
+{% endif %}
+{% if PREFIX.inet == 6 %}
+{% set count.ipv6 = count.ipv6 + 1 %}
+  - "name": "{{username}}_{{ PREFIX.name }}_V{{ PREFIX.inet }}_{{ count.ipv6 }}"
+    "address_type": "NETWORK"
+    "ip_address": "{{ PREFIX.prefix }}"
+    "address_version": "IPV{{ PREFIX.inet }}"
+{% endif %}
+{% endif %}
+{% endfor %}

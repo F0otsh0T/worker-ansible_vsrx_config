@@ -1,0 +1,375 @@
+ok: [ztst06frwl01exn002] => {
+    "OUTPUTCREATEADDRESS": {
+        "changed": false,
+        "msg": "All items completed",
+        "results": [
+            {
+                "_ansible_ignore_errors": null,
+                "_ansible_item_label": {
+                    "address_type": "NETWORK",
+                    "address_version": "IPV4",
+                    "ip_address": "192.168.88.0/24",
+                    "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_1"
+                },
+                "_ansible_item_result": true,
+                "_ansible_no_log": false,
+                "_ansible_parsed": true,
+                "cache_control": "no-cache,no-store,must-revalidate,private",
+                "changed": false,
+                "connection": "close",
+                "content": "{\"address\":{\"addr_name\":\"{{username}}_PROTECTED_NET_TST6B_EXN_V4_1\",\"name\":\"{{username}}_PROTECTED_NET_TST6B_EXN_V4_1\",\"update_number\":0,\"edit_version\":1,\"address_refs\":[],\"address_type\":\"NETWORK\",\"ip_address\":\"192.168.88.0/24\",\"description\":\"TEST\",\"address_version\":\"IPV4\",\"definition_type\":\"CUSTOM\",\"id_perms\":{\"created\":\"2019-10-21T18:21:41.000669\",\"creator\":\"{{username}}\",\"last_modified\":\"2019-10-21T18:21:41.000669\",\"last-modified-by-user-name\":\"{{username}}\",\"created-time\":1571682101669,\"last-modified-time\":1571682101669},\"uuid\":\"9830796\",\"uri\":\"/api/juniper/sd/address-management/v5/address/9830796\",\"domain-id\":2,\"associated_metadata\":\"\"}}",
+                "content_type": "application/json",
+                "cookies": {
+                    "JSESSIONID": "\"s7O4h0NJTwbhXIBjcgMLBUOIF1u4UmOjjHlLUq5XQAvoNew9MMszH2H8pKqJt7INRSo_.space-0319032014000032:server1\"",
+                    "JSESSIONIDSSO": "Id-SUDW48NL3zndG-M-0NdlxvmJSEvQJS8OYOIkm0TFLd0M749ZFzSoi-hm7vrhYYmI_"
+                },
+                "cookies_string": "JSESSIONID=\"s7O4h0NJTwbhXIBjcgMLBUOIF1u4UmOjjHlLUq5XQAvoNew9MMszH2H8pKqJt7INRSo_.space-0319032014000032:server1\"; JSESSIONIDSSO=Id-SUDW48NL3zndG-M-0NdlxvmJSEvQJS8OYOIkm0TFLd0M749ZFzSoi-hm7vrhYYmI_",
+                "date": "Mon, 21 Oct 2019 18:21:41 GMT",
+                "expires": "Mon, 21 Oct 2019 18:21:41 GMT",
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "attributes": null,
+                        "backup": null,
+                        "body": {
+                            "address": {
+                                "address_type": "NETWORK",
+                                "address_version": "IPV4",
+                                "associated_metadata": "",
+                                "definition_type": "CUSTOM",
+                                "description": "TEST",
+                                "ip_address": "192.168.88.0/24",
+                                "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_1"
+                            }
+                        },
+                        "body_format": "json",
+                        "client_cert": null,
+                        "client_key": null,
+                        "content": null,
+                        "creates": null,
+                        "delimiter": null,
+                        "dest": null,
+                        "directory_mode": null,
+                        "follow": false,
+                        "follow_redirects": "all",
+                        "force": false,
+                        "force_basic_auth": false,
+                        "group": null,
+                        "headers": {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "Cookie": "X-CSRF=Nmdd1Gi9gCJp2vFON15RTmNmHNT0EbfdM8jEr0dTPjMOe3ymMbC0mWIm8ykhxo6iBMp9EW; Path=/;Secure;SameSite=Lax;, JSESSIONIDSSO=Id-SUDW48NL3zndG-M-0NdlxvmJSEvQJS8OYOIkm0TFLd0M749ZFzSoi-hm7vrhYYmI_;Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;, JSESSIONID=\"s7O4h0NJTwbhXIBjcgMLBUOIF1u4UmOjjHlLUq5XQAvoNew9MMszH2H8pKqJt7INRSo_.space-0319032014000032:server1\";Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;"
+                        },
+                        "http_agent": "ansible-httpget",
+                        "method": "POST",
+                        "mode": null,
+                        "owner": null,
+                        "regexp": null,
+                        "remote_src": null,
+                        "removes": null,
+                        "return_content": true,
+                        "selevel": null,
+                        "serole": null,
+                        "setype": null,
+                        "seuser": null,
+                        "src": null,
+                        "status_code": [
+                            "200"
+                        ],
+                        "timeout": 30,
+                        "unsafe_writes": null,
+                        "url": "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address",
+                        "url_password": null,
+                        "url_username": null,
+                        "use_proxy": true,
+                        "validate_certs": false
+                    }
+                },
+                "item": {
+                    "address_type": "NETWORK",
+                    "address_version": "IPV4",
+                    "ip_address": "192.168.88.0/24",
+                    "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_1"
+                },
+                "json": {
+                    "address": {
+                        "addr_name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_1",
+                        "address_refs": [],
+                        "address_type": "NETWORK",
+                        "address_version": "IPV4",
+                        "associated_metadata": "",
+                        "definition_type": "CUSTOM",
+                        "description": "TEST",
+                        "domain-id": 2,
+                        "edit_version": 1,
+                        "id_perms": {
+                            "created": "2019-10-21T18:21:41.000669",
+                            "created-time": 1571682101669,
+                            "creator": "{{username}}",
+                            "last-modified-by-user-name": "{{username}}",
+                            "last-modified-time": 1571682101669,
+                            "last_modified": "2019-10-21T18:21:41.000669"
+                        },
+                        "ip_address": "192.168.88.0/24",
+                        "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_1",
+                        "update_number": 0,
+                        "uri": "/api/juniper/sd/address-management/v5/address/9830796",
+                        "uuid": "9830796"
+                    }
+                },
+                "msg": "OK (unknown bytes)",
+                "redirected": false,
+                "set_cookie": "JSESSIONIDSSO=Id-SUDW48NL3zndG-M-0NdlxvmJSEvQJS8OYOIkm0TFLd0M749ZFzSoi-hm7vrhYYmI_;Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;, JSESSIONID=\"s7O4h0NJTwbhXIBjcgMLBUOIF1u4UmOjjHlLUq5XQAvoNew9MMszH2H8pKqJt7INRSo_.space-0319032014000032:server1\";Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;",
+                "status": 200,
+                "strict_transport_security": "max-age=63072000; includeSubdomains; preload",
+                "transfer_encoding": "chunked",
+                "url": "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address",
+                "x_content_type_options": "nosniff",
+                "x_frame_options": "SAMEORIGIN",
+                "x_xss_protection": "1"
+            },
+            {
+                "_ansible_ignore_errors": null,
+                "_ansible_item_label": {
+                    "address_type": "NETWORK",
+                    "address_version": "IPV4",
+                    "ip_address": "192.168.89.0/24",
+                    "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_2"
+                },
+                "_ansible_item_result": true,
+                "_ansible_no_log": false,
+                "_ansible_parsed": true,
+                "cache_control": "no-cache,no-store,must-revalidate,private",
+                "changed": false,
+                "connection": "close",
+                "content": "{\"address\":{\"addr_name\":\"{{username}}_PROTECTED_NET_TST6B_EXN_V4_2\",\"name\":\"{{username}}_PROTECTED_NET_TST6B_EXN_V4_2\",\"update_number\":0,\"edit_version\":1,\"address_refs\":[],\"address_type\":\"NETWORK\",\"ip_address\":\"192.168.89.0/24\",\"description\":\"TEST\",\"address_version\":\"IPV4\",\"definition_type\":\"CUSTOM\",\"id_perms\":{\"created\":\"2019-10-21T18:21:42.000307\",\"creator\":\"{{username}}\",\"last_modified\":\"2019-10-21T18:21:42.000307\",\"last-modified-by-user-name\":\"{{username}}\",\"created-time\":1571682102307,\"last-modified-time\":1571682102307},\"uuid\":\"9830797\",\"uri\":\"/api/juniper/sd/address-management/v5/address/9830797\",\"domain-id\":2,\"associated_metadata\":\"\"}}",
+                "content_type": "application/json",
+                "cookies": {},
+                "cookies_string": "",
+                "date": "Mon, 21 Oct 2019 18:21:42 GMT",
+                "expires": "Mon, 21 Oct 2019 18:21:42 GMT",
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "attributes": null,
+                        "backup": null,
+                        "body": {
+                            "address": {
+                                "address_type": "NETWORK",
+                                "address_version": "IPV4",
+                                "associated_metadata": "",
+                                "definition_type": "CUSTOM",
+                                "description": "TEST",
+                                "ip_address": "192.168.89.0/24",
+                                "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_2"
+                            }
+                        },
+                        "body_format": "json",
+                        "client_cert": null,
+                        "client_key": null,
+                        "content": null,
+                        "creates": null,
+                        "delimiter": null,
+                        "dest": null,
+                        "directory_mode": null,
+                        "follow": false,
+                        "follow_redirects": "all",
+                        "force": false,
+                        "force_basic_auth": false,
+                        "group": null,
+                        "headers": {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "Cookie": "X-CSRF=Nmdd1Gi9gCJp2vFON15RTmNmHNT0EbfdM8jEr0dTPjMOe3ymMbC0mWIm8ykhxo6iBMp9EW; Path=/;Secure;SameSite=Lax;, JSESSIONIDSSO=Id-SUDW48NL3zndG-M-0NdlxvmJSEvQJS8OYOIkm0TFLd0M749ZFzSoi-hm7vrhYYmI_;Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;, JSESSIONID=\"s7O4h0NJTwbhXIBjcgMLBUOIF1u4UmOjjHlLUq5XQAvoNew9MMszH2H8pKqJt7INRSo_.space-0319032014000032:server1\";Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;"
+                        },
+                        "http_agent": "ansible-httpget",
+                        "method": "POST",
+                        "mode": null,
+                        "owner": null,
+                        "regexp": null,
+                        "remote_src": null,
+                        "removes": null,
+                        "return_content": true,
+                        "selevel": null,
+                        "serole": null,
+                        "setype": null,
+                        "seuser": null,
+                        "src": null,
+                        "status_code": [
+                            "200"
+                        ],
+                        "timeout": 30,
+                        "unsafe_writes": null,
+                        "url": "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address",
+                        "url_password": null,
+                        "url_username": null,
+                        "use_proxy": true,
+                        "validate_certs": false
+                    }
+                },
+                "item": {
+                    "address_type": "NETWORK",
+                    "address_version": "IPV4",
+                    "ip_address": "192.168.89.0/24",
+                    "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_2"
+                },
+                "json": {
+                    "address": {
+                        "addr_name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_2",
+                        "address_refs": [],
+                        "address_type": "NETWORK",
+                        "address_version": "IPV4",
+                        "associated_metadata": "",
+                        "definition_type": "CUSTOM",
+                        "description": "TEST",
+                        "domain-id": 2,
+                        "edit_version": 1,
+                        "id_perms": {
+                            "created": "2019-10-21T18:21:42.000307",
+                            "created-time": 1571682102307,
+                            "creator": "{{username}}",
+                            "last-modified-by-user-name": "{{username}}",
+                            "last-modified-time": 1571682102307,
+                            "last_modified": "2019-10-21T18:21:42.000307"
+                        },
+                        "ip_address": "192.168.89.0/24",
+                        "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V4_2",
+                        "update_number": 0,
+                        "uri": "/api/juniper/sd/address-management/v5/address/9830797",
+                        "uuid": "9830797"
+                    }
+                },
+                "msg": "OK (unknown bytes)",
+                "redirected": false,
+                "status": 200,
+                "strict_transport_security": "max-age=63072000; includeSubdomains; preload",
+                "transfer_encoding": "chunked",
+                "url": "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address",
+                "x_content_type_options": "nosniff",
+                "x_frame_options": "SAMEORIGIN",
+                "x_xss_protection": "1"
+            },
+            {
+                "_ansible_ignore_errors": null,
+                "_ansible_item_label": {
+                    "address_type": "NETWORK",
+                    "address_version": "IPV6",
+                    "ip_address": "2606:ae00:e200:103::/64",
+                    "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V6_2"
+                },
+                "_ansible_item_result": true,
+                "_ansible_no_log": false,
+                "_ansible_parsed": true,
+                "cache_control": "no-cache,no-store,must-revalidate,private",
+                "changed": false,
+                "connection": "close",
+                "content": "{\"address\":{\"addr_name\":\"{{username}}_PROTECTED_NET_TST6B_EXN_V6_2\",\"name\":\"{{username}}_PROTECTED_NET_TST6B_EXN_V6_2\",\"update_number\":0,\"edit_version\":1,\"address_refs\":[],\"address_type\":\"NETWORK\",\"ip_address\":\"2606:ae00:e200:103::/64\",\"description\":\"TEST\",\"address_version\":\"IPV6\",\"definition_type\":\"CUSTOM\",\"id_perms\":{\"created\":\"2019-10-21T18:21:43.000035\",\"creator\":\"{{username}}\",\"last_modified\":\"2019-10-21T18:21:43.000035\",\"last-modified-by-user-name\":\"{{username}}\",\"created-time\":1571682103035,\"last-modified-time\":1571682103035},\"uuid\":\"9830798\",\"uri\":\"/api/juniper/sd/address-management/v5/address/9830798\",\"domain-id\":2,\"associated_metadata\":\"\"}}",
+                "content_type": "application/json",
+                "cookies": {},
+                "cookies_string": "",
+                "date": "Mon, 21 Oct 2019 18:21:43 GMT",
+                "expires": "Mon, 21 Oct 2019 18:21:43 GMT",
+                "failed": false,
+                "invocation": {
+                    "module_args": {
+                        "attributes": null,
+                        "backup": null,
+                        "body": {
+                            "address": {
+                                "address_type": "NETWORK",
+                                "address_version": "IPV6",
+                                "associated_metadata": "",
+                                "definition_type": "CUSTOM",
+                                "description": "TEST",
+                                "ip_address": "2606:ae00:e200:103::/64",
+                                "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V6_2"
+                            }
+                        },
+                        "body_format": "json",
+                        "client_cert": null,
+                        "client_key": null,
+                        "content": null,
+                        "creates": null,
+                        "delimiter": null,
+                        "dest": null,
+                        "directory_mode": null,
+                        "follow": false,
+                        "follow_redirects": "all",
+                        "force": false,
+                        "force_basic_auth": false,
+                        "group": null,
+                        "headers": {
+                            "Accept": "application/json",
+                            "Content-Type": "application/json",
+                            "Cookie": "X-CSRF=Nmdd1Gi9gCJp2vFON15RTmNmHNT0EbfdM8jEr0dTPjMOe3ymMbC0mWIm8ykhxo6iBMp9EW; Path=/;Secure;SameSite=Lax;, JSESSIONIDSSO=Id-SUDW48NL3zndG-M-0NdlxvmJSEvQJS8OYOIkm0TFLd0M749ZFzSoi-hm7vrhYYmI_;Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;, JSESSIONID=\"s7O4h0NJTwbhXIBjcgMLBUOIF1u4UmOjjHlLUq5XQAvoNew9MMszH2H8pKqJt7INRSo_.space-0319032014000032:server1\";Version=1;Comment=\"Set cookie to response\";Path=/;Secure;HttpOnly;SameSite=Lax;"
+                        },
+                        "http_agent": "ansible-httpget",
+                        "method": "POST",
+                        "mode": null,
+                        "owner": null,
+                        "regexp": null,
+                        "remote_src": null,
+                        "removes": null,
+                        "return_content": true,
+                        "selevel": null,
+                        "serole": null,
+                        "setype": null,
+                        "seuser": null,
+                        "src": null,
+                        "status_code": [
+                            "200"
+                        ],
+                        "timeout": 30,
+                        "unsafe_writes": null,
+                        "url": "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address",
+                        "url_password": null,
+                        "url_username": null,
+                        "use_proxy": true,
+                        "validate_certs": false
+                    }
+                },
+                "item": {
+                    "address_type": "NETWORK",
+                    "address_version": "IPV6",
+                    "ip_address": "2606:ae00:e200:103::/64",
+                    "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V6_2"
+                },
+                "json": {
+                    "address": {
+                        "addr_name": "{{username}}_PROTECTED_NET_TST6B_EXN_V6_2",
+                        "address_refs": [],
+                        "address_type": "NETWORK",
+                        "address_version": "IPV6",
+                        "associated_metadata": "",
+                        "definition_type": "CUSTOM",
+                        "description": "TEST",
+                        "domain-id": 2,
+                        "edit_version": 1,
+                        "id_perms": {
+                            "created": "2019-10-21T18:21:43.000035",
+                            "created-time": 1571682103035,
+                            "creator": "{{username}}",
+                            "last-modified-by-user-name": "{{username}}",
+                            "last-modified-time": 1571682103035,
+                            "last_modified": "2019-10-21T18:21:43.000035"
+                        },
+                        "ip_address": "2606:ae00:e200:103::/64",
+                        "name": "{{username}}_PROTECTED_NET_TST6B_EXN_V6_2",
+                        "update_number": 0,
+                        "uri": "/api/juniper/sd/address-management/v5/address/9830798",
+                        "uuid": "9830798"
+                    }
+                },
+                "msg": "OK (unknown bytes)",
+                "redirected": false,
+                "status": 200,
+                "strict_transport_security": "max-age=63072000; includeSubdomains; preload",
+                "transfer_encoding": "chunked",
+                "url": "https://10.60.164.206:443/api/juniper/sd/address-management/v5/address",
+                "x_content_type_options": "nosniff",
+                "x_frame_options": "SAMEORIGIN",
+                "x_xss_protection": "1"
+            }
+        ]
+    }
+}

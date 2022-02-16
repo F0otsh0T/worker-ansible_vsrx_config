@@ -1,0 +1,160 @@
+#!groovy
+
+/*
+JENKINSFILE SCRIPTED MULTISTAGE / MULTINODE
+*/
+
+stage('PREPAREWORKSPACE') {
+    node {
+        sh 'mkdir -p ansible'
+        sh 'mkdir -p key'
+        sh 'mkdir -p afw-worker-init'
+    }
+}
+
+stage('CHECKOUT') {
+    node {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/development']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'jsa'
+            ]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'http://{{username}}@{{git}}/worker/afw-worker-jsa_log_source.git', credentialsId: '{{JENKINS_CREDENTIALSID}}']]
+        ])
+    }
+    node {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/development']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'ansible'
+            ]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'http://{{username}}@{{git}}/worker/afw-worker-nc_vsrx_cnc.git', credentialsId: '{{JENKINS_CREDENTIALSID}}']]
+        ])
+    }
+    node {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/development']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'key1'
+            ]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'http://{{username}}@{{git}}/key/mechuser_{{VSRX_MECHUSER}}.git', credentialsId: '{{JENKINS_CREDENTIALSID}}']]
+        ])
+    }
+    node {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/development']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'key2'
+            ]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'http://{{username}}@{{git}}/key/mechuser_{{MECHUSER}}.git', credentialsId: '{{JENKINS_CREDENTIALSID}}']]
+        ])
+    }
+    node {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/development']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'license'
+            ]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'http://{{username}}@{{git}}/key/license_vsrx_1g.git', credentialsId: '{{JENKINS_CREDENTIALSID}}']]
+        ])
+    }
+    node {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/development']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'requirements'
+            ]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'http://{{username}}@{{git}}/automation/afw-core-requirements.git', credentialsId: '{{JENKINS_CREDENTIALSID}}']]
+        ])
+    }
+    node {
+        checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/development']],
+            doGenerateSubmoduleConfigurations: false,
+            extensions: [[
+                $class: 'RelativeTargetDirectory',
+                relativeTargetDir: 'afw-worker-init'
+            ]],
+            submoduleCfg: [],
+            userRemoteConfigs: [[url: 'http://{{username}}@{{git}}/automation/afw-worker-init_var.git', credentialsId: '{{JENKINS_CREDENTIALSID}}']]
+        ])
+    }
+}
+
+stage('BUILD') {
+    node {
+        IMAGE = '127.0.0.1:{{SVC_PORT}}/afw-worker-cloudvsrxcnc'
+        withEnv([
+            "DOCKERFILE=ansible/Dockerfile",
+            "IMAGE_VERSION=${IMAGE}:${env.BUILD_NUMBER}",
+            "IMAGE_LATEST=${IMAGE}:latest"
+        ]) {
+            sh "echo DOCKERFILE is ${DOCKERFILE}"
+            sh "echo IMAGE is ${IMAGE}"
+            sh "echo IMAGE_VERSION is ${IMAGE_VERSION}"
+            sh "echo IMAGE_LATEST is ${IMAGE_LATEST}"
+
+//
+            echo env.DOCKERFILE
+            echo env.IMAGE
+            echo env.IMAGE_VERSION
+            echo env.IMAGE_LATEST
+//
+            sh "echo '---------------------------------'"
+            sh "echo 'LIST WORKSPACE DIRECTORY CONTENTS'"
+            sh "echo '---------------------------------'"
+            sh "ls -al ansible/*"
+            sh "ls -al key/"
+            sh "ls -al afw-worker-init/*"
+//
+            sh "echo '----------------------'"
+            sh "echo 'BUILD CONTAINER IMAGES'"
+            sh "echo '----------------------'"
+            sh "docker build . -f ${DOCKERFILE} -t ${IMAGE_VERSION} -t ${IMAGE_LATEST}"
+            sh "echo '---------------------'"
+            sh "echo 'PUSH CONTAINER IMAGES'"
+            sh "echo '---------------------'"
+            sh "docker push ${IMAGE_VERSION} && docker push ${IMAGE_LATEST}"
+        }
+        // DEBUG ENV VARIABLES
+//        sh "env > env.txt"
+    }
+}
+
+stage('DEPLOY') {
+    node {
+        withEnv([
+//            "IMAGE_VERSION=${IMAGE}/afw-worker-cloudvsrxcnc:${env.BUILD_NUMBER}"
+            "IMAGE_VERSION=${IMAGE}:${env.BUILD_NUMBER}"
+        ]) {
+            sh "kubectl set image deployment/wkcloudvsrxcnc-worker-cloudvsrxcnc `kubectl get deployment --selector=app=worker-cloudvsrxcnc -o jsonpath={.items[*].spec.template.spec.containers[*].name}`=${IMAGE_VERSION}"
+//            sh "kubectl set image deployment/wkcloudvsrxcnc-worker-cloudvsrxcnc `kubectl get deployment --selector=app=worker-cloudvsrxcnc -o jsonpath={.items[*].spec.template.spec.containers[*].name}`=${env.BUILD_NUMBER}"
+        }
+    }
+
+}

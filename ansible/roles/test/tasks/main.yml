@@ -1,0 +1,18 @@
+---
+################################################################################
+# YAML with Tasks - By Automation User // MyUser
+################################################################################
+#
+################################################################################
+#  tasks:
+##########
+- name: GetFacts
+  include_role:
+    name: 00-common
+    tasks_from: juniper_junos_facts.yml
+  tags:
+    - GetFacts
+- name: ConfigvSRXRetrieve
+  include_tasks: juniper_junos_config_overwrite.yml
+  tags:
+    - ConfigvSRXBase

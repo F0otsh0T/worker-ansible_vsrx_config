@@ -1,0 +1,161 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: CREATEQUEUE
+      uri:
+        url: "https://10.60.164.206:443/api/hornet-q/queues"
+        method: POST
+        status_code: 201, 412
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        force_basic_auth: yes
+        user: {{username}}
+        password: "@!T3stME!"
+        headers:
+          content-type: application/hornetq.jms.queue+xml
+        body: <queue name="{{SPACE_TEST_QUEUE}}"><durable>false</durable></queue>
+      register: OUTPUTCREATEQUEUE
+
+    - name: DEBUGCREATEQUEUE
+      debug:
+        msg: "{{ OUTPUTCREATEQUEUE }}"
+#        msg: "{{ OUTPUTGETDEVICEID.json }}"
+#        var: OUTPUTGETDEVICEID
+#        var: OUTPUTGETDEVICEID.json
+#        verbosity: 1
+
+    - name: GETDISCOVERY
+      uri:
+        url: "https://10.60.164.206:443/api/space/device-management/device-discovery-rules"
+        method: GET
+        validate_certs: no
+        status_code: 200, 202, 500
+        return_content: yes
+        force_basic_auth: yes
+        user: "{{username}}"
+        password: "@!T3stME!"
+        headers:
+#          Accept: application/vnd.net.juniper.space.job-management.task+json;version=1
+          Accept: application/vnd.net.juniper.space.device-management.device-discovery-rules+json;version=6
+#          content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+json;version=6;charset=UTF-8
+#          content-type: application/vnd.net.juniper.space.device-management.add-device-discovery-rule-by-ip-request+xml;version=6;charset=UTF-8
+#        body_format: json
+      register: OUTPUTGETDISCOVERY
+
+    - name: DEBUGGETDISCOVERY
+      debug:
+        msg: "{{ OUTPUTGETDISCOVERY }}"
+#      when: OUTPUTGETDISCOVERY.json.device-discovery-rules.device-discovery-rule[1]
+
+    - name: DEBUG_01
+      debug:
+#        msg: '{{ OUTPUTGETDISCOVERY.json["device-discovery-rules"] }}'
+#        msg: '{{ OUTPUTGETDISCOVERY.json["device-discovery-rules"]["device-discovery-rule"] }}'
+#        msg: "{{ OUTPUTGETDISCOVERY.json['device-discovery-rules']['device-discovery-rule'] }}"
+
+    - name: DEBUG_02
+      debug:
+#        var: OUTPUTGETDISCOVERY.json["device-discovery-rules"]["device-discovery-rule"]
+
+    - name: SETFACT_DISCOVERYLIST
+      set_fact:
+        DISCOVERYLIST: "{{ OUTPUTGETDISCOVERY.json['device-discovery-rules']['device-discovery-rule'] }}"
+
+    - name: DEBUG_DISCOVERYLIST
+      debug:
+        msg: "{{ DISCOVERYLIST }}"
+
+    - name: GET_DISCOVERYID
+      debug:
+#        var: item.id
+        msg: "The Discovery Profile ID is {{ item.id }} for Discovery Profile Name {{ item['discovery-profile-name'] }}"
+#      when: DISCOVERYLIST["discovery-profile-name"] == {{ inventory_hostname }}
+      when: item["discovery-profile-name"] == "{{ inventory_hostname }}"
+#      when: item["discovery-profile-name"] == "NDC2BIXCFW-NEW"
+      loop: "{{ DISCOVERYLIST }}"
+#      with_items: "{{ DISCOVERYLIST }}"
+      ignore_errors: yes
+      register: GETDISCOVERYID
+
+    - name: DEBUG_GETDISCOVERYID
+      debug:
+        var: GETDISCOVERYID
+
+    - name: SETFACT_DISCOVERYID
+      set_fact:
+        DISCOVERYID: "{{ item.id }}"
+      when: item["discovery-profile-name"] == "{{ inventory_hostname }}"
+      loop: "{{ DISCOVERYLIST }}"
+      ignore_errors: yes
+      register: SETFACTDISCOVERYID
+
+    - name: JUNOSSpace-AddDevices-DEBUG_DISCOVERYID
+      debug:
+        var: DISCOVERYID
+      ignore_errors: yes
+
+    - name: JUNOSSpace-AddDevices-DEBUG_SETFACTDISCOVERYID
+      debug:
+        var: SETFACTDISCOVERYID
+      ignore_errors: yes
+
+    - name: JUNOSSpace-AddDevices-DeleteDiscoveryProfile
+      uri:
+        url: "https://10.60.164.206:443/api/space/device-management/delete-device-discovery-rules"
+        method: POST
+        status_code: 200, 202
+        return_content: yes
+        ## COOKIE NOT WORKING - HAVE TO LOGIN AGAIN
+        force_basic_auth: yes
+        user: {{username}}
+        password: "@!T3stME!"
+        validate_certs: no
+        headers:
+          Accept: application/vnd.net.juniper.space.device-management.delete-device-discovery-rules-response+json;version=6
+          content-type: application/vnd.net.juniper.space.device-management.delete-device-discovery-rules-request+xml;version=6;charset=UTF-8
+        body: >
+          <?xml version="1.0" encoding="UTF-8"?>
+          <delete-device-discovery-rules-request>
+          <device-discovery-rules>
+          <device-discovery-rule href="/api/space/device-management/device-discovery-rules/{{ DISCOVERYID }}"/>
+          </device-discovery-rules>
+          </delete-device-discovery-rules-request>
+      ignore_errors: yes
+      register: SpaceAddDevicesDeleteDiscoveryProfile
+
+    - name: Debug-JUNOSSpace-AddDevices-DeleteDiscoveryProfile
+      debug:
+        var: SpaceAddDevicesDeleteDiscoveryProfile
+

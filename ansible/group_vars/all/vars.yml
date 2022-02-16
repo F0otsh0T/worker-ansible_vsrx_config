@@ -1,0 +1,255 @@
+---
+################################################################################
+## STATIC_START
+## STANDARD
+################################################################################
+
+##################################################
+# LOG & OUTPUT
+#
+CFG_DIR: /ansible/log/config/
+DEBUG_DIR: /ansible/log/debug/
+LOG_DIR: /ansible/log/
+OUTPUT_DIR: /ansible/log/output/
+
+##################################################
+# USER
+#
+JUNOS_USERNAME: {{VSRX_MECHUSER}}
+
+##################################################
+# PASSWORD
+#
+JUNOS_PASSWORD: ""
+
+##################################################
+# SSH_PUBLIC_KEY
+#
+SSH_PUBLIC_KEY:
+
+##################################################
+# SSH_PRIVATE_KEY
+#
+SSH_PRIVATE_KEY_FILE: /key/{{VSRX_MECHUSER}}
+
+##################################################
+# VNF VARIABLES
+#
+# POD_TYPE: (CP, CUP, MC, UP)
+#POD_TYPE: "CP"
+VSRX_LICENSE_KEY: "{{VSRX_LICENSE_KEY}}"
+
+##################################################
+#
+# PROVIDER VARS FOR JUNIPER.JUNOS MODULES
+#
+PROVIDER_JUNIPER_JUNOS_VARS:
+  host: "{{ ansible_host }}"
+  port: "{{ NETCONF_PORT }}"
+  ssh_private_key_file: "{{ SSH_PRIVATE_KEY_FILE }}"
+  user: "{{ JUNOS_USERNAME }}"
+
+##################################################
+#
+# BASE ROUTING
+#
+#ROUTEFILTER_PREFIX_01: ""
+#ROUTEFILTER_PREFIX_02: ""
+
+##################################################
+# SPACE: EMS STATIC VARIABLES
+#
+## SPACE INFO
+SPACE_HOST: "10.60.164.206"
+SPACE_API_PORT: "443"
+SPACE_API_VALIDATE_CERTS: "no"
+## SPACE AUTH
+SPACE_API_LOGIN_AUTH_USER: "{{username}}"
+SPACE_API_LOGIN_AUTH_PASS: "{{SPACE_API_LOGIN_AUTH_PASS}}"
+## CREATE HORNET-Q QUEUE
+SPACE_API_ADD_DEVICES_QUEUE_NAME: "{{SPACE_TEST_QUEUE}}"
+## AUTH FOR DEVICE
+SPACE_API_ADD_DEVICES_CREATE_DISCOVERY_JOB_DEVICE_USER: "{{SPACE_API_USERNAME}}"
+SPACE_API_ADD_DEVICES_CREATE_DISCOVERY_JOB_DEVICE_PASSWORD: ""
+SPACE_API_ADD_DEVICES_CREATE_DISCOVERY_JOB_DEVICE_KEY: ""
+
+##################################################
+# SPACE: VARIABLE OBJECT ID - POLYMORPHIC ADDRESS
+#
+#SPACE_API_VAR_OBJECT_NAME: "VPA-NC-{{ VVVV }}-{{ POD_TYPE }}_PROTECTED_NET"
+SPACE_API_VAR_OBJECT_NAME: "VPA-NC-{{ VVVV }}-{{ POD_TYPE[inventory_hostname] }}_PROTECTED_NET"
+## GET POLICY ID
+#SPACE_API_POLICY_NAME: "NC-GLOBAL-{{ VVVV }}-{{ POD_TYPE }}"
+SPACE_API_POLICY_NAME: "NC-GLOBAL-{{ VVVV }}-{{ POD_TYPE[inventory_hostname] }}"
+
+##################################################
+# JSA SEIM VARIABLES
+#
+## JSA CONSOLE
+JSA_CONSOLE_IP: "10.10.168.5"
+JSA_QRADAR_VERSION: "7.3.2"
+JSA_API_TOKEN: "{{JSA_API_TOKEN}}"
+## JSA LB VIP
+JSA_LB_VIP: "192.168.1.1"
+## JSA INPUT
+JSA_LOG_GROUP_ADD:
+  - name: "{{ inventory_hostname }}"
+    description: "vSRX {{ inventory_hostname }} - Ansible Configured"
+    dsm: "Juniper SRX Series Services Gateway"
+    protocol: "Syslog"
+    identifier: "{{ inventory_hostname }}"
+#    identifier: "{{ ansible_host }}"
+#    identifier: "{{ INT4_IP_V4[inventory_hostname] }}"
+    credibility: "5"
+JSA_LOG_GROUP_RM:
+  - name: "{{ inventory_hostname }}"
+
+################################################################################
+## STATIC_END
+## STANDARD
+################################################################################
+
+################################################################################
+## DYNAMIC_START
+## STANDARD
+################################################################################
+
+##################################################
+# LOCATION & TYPE
+#
+LOCATION: "TST55B"
+VVVV: "FRWL"
+PPP: "CNC"
+POD_TYPE:
+  ztst55bfrwl01cnc001: "CP"
+  ztst55bfrwl01cnc002: "CP"
+
+##################################################
+# BASE CONFIG SNMP VARIABLES
+#
+SNMP_DESC:
+  ztst55bfrwl01cnc001: "ZTST55B FRWL 01 CNC 001"
+  ztst55bfrwl01cnc002: "ZTST55B FRWL 01 CNC 002"
+SNMP_LOC:
+  ztst55bfrwl01cnc001: "NC ZTST55B @ ZTST55B"
+  ztst55bfrwl01cnc002: "NC ZTST55B @ ZTST55B"
+
+##################################################
+# BGP
+#
+BGP_AS_01:
+  ztst55bfrwl01cnc001: "10101"
+  ztst55bfrwl01cnc002: "10101"
+BGP_PEER_AS_01:
+  ztst55bfrwl01cnc001: "20202"
+  ztst55bfrwl01cnc002: "20202"
+BGP_PEER_CNC_DIRECT_01:
+  ztst55bfrwl01cnc001: 10.30.228.130
+  ztst55bfrwl01cnc002: 10.30.228.130
+BGP_PEER_CNC_DIRECT_02:
+  ztst55bfrwl01cnc001: 10.30.228.131
+  ztst55bfrwl01cnc002: 10.30.228.131
+
+##################################################
+# VN PROTECTED NET PREFIXES
+#
+PROTECTED_NET:
+  - name: PROTECTED_NET_{{ LOCATION }}_{{ VVVV }}_{{ PPP }}
+    prefix: 10.30.228.0/25
+    inet: 4
+  - name: PROTECTED_NET_{{ LOCATION }}_{{ VVVV }}_{{ PPP }}
+    prefix: 10.30.228.192/28
+    inet: 4
+
+##################################################
+# INT0: FXP0 - MGMT
+#
+INT0: "fxp0"
+
+INT0_IP_V4_MASK:
+  ztst55bfrwl01cnc001: "25"
+  ztst55bfrwl01cnc002: "25"
+
+INT0_IP_V4_GW:
+  ztst55bfrwl01cnc001: "10.10.169.129"
+  ztst55bfrwl01cnc002: "10.10.169.129"
+
+##################################################
+# INT1: GE-0/0/0 - PROTECTED_NET_1
+#
+INT1: "ge-0/0/0"
+
+INT1_IP_V4:
+  ztst55bfrwl01cnc001: "10.30.228.16"
+  ztst55bfrwl01cnc002: "10.30.228.17"
+
+INT1_IP_V4_MASK:
+  ztst55bfrwl01cnc001: "25"
+  ztst55bfrwl01cnc002: "25"
+
+INT1_IP_V4_GW:
+  ztst55bfrwl01cnc001: "10.30.228.1"
+  ztst55bfrwl01cnc002: "10.30.228.1"
+
+##################################################
+# INT2: GE-0/0/1 - PROTECTED_NET_2
+#
+INT2: "ge-0/0/1"
+
+INT2_IP_V4:
+  ztst55bfrwl01cnc001: "10.30.228.198"
+  ztst55bfrwl01cnc002: "10.30.228.199"
+
+INT2_IP_V4_MASK:
+  ztst55bfrwl01cnc001: "28"
+  ztst55bfrwl01cnc002: "28"
+
+INT2_IP_V4_GW:
+  ztst55bfrwl01cnc001: "10.30.228.193"
+  ztst55bfrwl01cnc002: "10.30.228.193"
+
+##################################################
+# INT3: GE-0/0/2 - DIRECT_NET
+#
+INT3: "ge-0/0/2"
+
+INT3_IP_V4:
+  ztst55bfrwl01cnc001: "10.30.228.134"
+  ztst55bfrwl01cnc002: "10.30.228.135"
+
+INT3_IP_V4_MASK:
+  ztst55bfrwl01cnc001: "27"
+  ztst55bfrwl01cnc002: "27"
+
+##################################################
+# INT4: GE-0/0/3 - HSL_NET
+#
+INT4: "ge-0/0/3"
+
+INT4_IP_V4:
+  ztst55bfrwl01cnc001: "10.20.0.2"
+  ztst55bfrwl01cnc002: "10.20.0.3"
+
+INT4_IP_V4_MASK:
+  ztst55bfrwl01cnc001: "24"
+  ztst55bfrwl01cnc002: "24"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

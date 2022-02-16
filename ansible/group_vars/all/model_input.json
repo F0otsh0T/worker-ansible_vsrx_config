@@ -1,0 +1,39 @@
+{
+  "vnf_name": "",
+  "device_role": "",
+  "inventory": {
+    "dynamic": {
+      "inventory_hostname": "",
+      "ansible_host": "",
+      "INT0": "fxp0",
+      "INT0_IP_v4_MASK": "",
+      "INT0_IP_V4_GW": "",
+      "INT1": "ge-0/0/0",
+      "INT1_IP_V4": "",
+      "INT1_IP_V4_MASK": "",
+      "INT1_IP_V4_GW": "",
+      "INT2": "ge-0/0/1",
+      "INT2_IP_V4": "",
+      "INT2_IP_V4_MASK": "",
+      "INT2_IP_V4_GW": "",
+      "INT3": "ge-0/0/2",
+      "INT3_IP_V4": "",
+      "INT3_IP_V4_MASK": "",
+      "INT4": "ge-0/0/3",
+      "INT4_IP_V4": "",
+      "INT4_IP_V4_MASK": "",
+      "JSA_LB_VIP": "",
+      "BGP_NEIGHBOR_01": "",
+      "BGP_NEIGHBOR_02": ""
+    },
+    "static": {
+      "SNMP_DESC": "",
+      "SNMP_LOC": "",
+      "BGP_AS_01": "",
+      "ROUTEFILTER_PREFIX_01": "",
+      "ROUTEFILTER_PREFIX_02": "",
+      "CV_LOCAL_PREF": "",
+      "BGP_PEER_AS_01": ""
+    }
+  }
+}

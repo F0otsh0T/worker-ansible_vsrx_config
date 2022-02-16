@@ -1,0 +1,292 @@
+---
+
+##################################################
+# LOG & OUTPUT
+#
+CFG_DIR: log/config/
+DEBUG_DIR: log/debug/
+LOG_DIR: log/
+OUTPUT_DIR: log/output/
+
+##################################################
+# USER
+#
+JUNOS_USERNAME: {{VSRX_MECHUSER}}
+
+##################################################
+# PASSWORD
+#
+JUNOS_PASSWORD: ""
+
+##################################################
+# SSH_PUBLIC_KEY
+#
+SSH_PUBLIC_KEY:
+
+##################################################
+# SSH_PRIVATE_KEY
+#
+SSH_PRIVATE_KEY_FILE: /key/{{VSRX_MECHUSER}}
+
+##################################################
+# VNF VARIABLES
+#
+ROUTEFILTER_PREFIX_01: {
+  "zsde1frwl01tst001": "192.168.11.0/24",
+  "zsde1frwl01tst002": "192.168.11.0/24",
+  "ztst06frwl01tst001": "192.168.11.0/24",
+  "ztst06frwl01tst002": "192.168.11.0/24",
+  "ztst52afrwl01cnc001": "10.10.82.0/24",
+  "ztst52afrwl01cnc002": "10.10.82.0/24",
+  "ztst52bfrwl01cnc001": "10.10.87.0/24",
+  "ztst52bfrwl01cnc002": "10.10.87.0/24",
+  "": ""
+}
+ROUTEFILTER_PREFIX_02: {
+  "zsde1frwl01tst001": "192.168.44.0/24",
+  "zsde1frwl01tst002": "192.168.44.0/24",
+  "ztst06frwl01tst001": "192.168.44.0/24",
+  "ztst06frwl01tst002": "192.168.44.0/24",
+  "ztst52afrwl01cnc001": "10.10.83.0/27",
+  "ztst52afrwl01cnc002": "10.10.83.0/27",
+  "ztst52bfrwl01cnc001": "10.10.86.128/27",
+  "ztst52bfrwl01cnc002": "10.10.86.128/27",
+  "": ""
+}
+#############################
+# DIRECT_NET_1 BGP NEIGHBOR #
+#############################
+BGP_NEIGHBOR_01: {
+  "zsde1frwl01tst001": "192.168.22.2",
+  "zsde1frwl01tst002": "192.168.22.2",
+  "ztst06frwl01tst001": "192.168.22.2",
+  "ztst06frwl01tst002": "192.168.22.2",
+  "ztst52afrwl01cnc001": "10.10.81.130",
+  "ztst52afrwl01cnc002": "10.10.81.130",
+  "ztst52bfrwl01cnc001": "10.10.86.2",
+  "ztst52bfrwl01cnc002": "10.10.86.2",
+  "": ""
+}
+BGP_NEIGHBOR_02: {
+  "zsde1frwl01tst001": "192.168.22.3",
+  "zsde1frwl01tst002": "192.168.22.3",
+  "ztst06frwl01tst001": "192.168.22.3",
+  "ztst06frwl01tst002": "192.168.22.3",
+  "ztst52afrwl01cnc001": "10.10.81.131",
+  "ztst52afrwl01cnc002": "10.10.81.131",
+  "ztst52bfrwl01cnc001": "10.10.86.3",
+  "ztst52bfrwl01cnc002": "10.10.86.3",
+  "": ""
+}
+BGP_AS_01: {
+  "zsde1frwl01tst001": "10101",
+  "zsde1frwl01tst002": "10101",
+  "ztst06frwl01tst001": "10101",
+  "ztst06frwl01tst002": "10101",
+  "ztst52afrwl01cnc001": "10101",
+  "ztst52afrwl01cnc002": "10101",
+  "ztst52bfrwl01cnc001": "10101",
+  "ztst52bfrwl01cnc002": "10101",
+  "": ""
+}
+BGP_PEER_AS_01: {
+  "zsde1frwl01tst001": "20202",
+  "zsde1frwl01tst002": "20202",
+  "ztst06frwl01tst001": "20202",
+  "ztst06frwl01tst002": "20202",
+  "ztst52afrwl01cnc001": "20202",
+  "ztst52afrwl01cnc002": "20202",
+  "ztst52bfrwl01cnc001": "20202",
+  "ztst52bfrwl01cnc002": "20202",
+  "": ""
+}
+CV_LOCAL_PREF: {
+  "ztst06frwl01tst001": "13979:70",
+  "ztst06frwl01tst002": "13979:40",
+  "ztst52afrwl01cnc001": "13979:70",
+  "ztst52afrwl01cnc002": "13979:40",
+  "ztst52bfrwl01cnc001": "13979:70",
+  "ztst52bfrwl01cnc002": "13979:40",
+  "": ""
+}
+SNMP_DESC: {
+  "zsde1frwl01tst001": "ZSDE1_TEST_FRWL01_001",
+  "zsde1frwl01tst002": "ZSDE1_TEST_FRWL01_002",
+  "ztst06frwl01tst001": "TST6B_TEST_FRWL01_001",
+  "ztst06frwl01tst002": "TST6B_TEST_FRWL01_002",
+  "ztst52afrwl01cnc001": "TST52A_BLACKBIRD_FRWL01_CNC001",
+  "ztst52afrwl01cnc002": "TST52A_BLACKBIRD_FRWL01_CNC002",
+  "ztst52bfrwl01cnc001": "TST52B_BLACKBIRD_FRWL01_CNC001",
+  "ztst52bfrwl01cnc002": "TST52B_BLACKBIRD_FRWL01_CNC002",
+  "": ""
+}
+SNMP_LOC: {
+  "zsde1frwl01tst001": "RTC2_ZSDE1_TEST",
+  "zsde1frwl01tst002": "RTC2_ZSDE1_TEST",
+  "ztst06frwl01tst001": "WILLOWS_TST6B_TEST",
+  "ztst06frwl01tst002": "WILLOWS_TST6B_TEST",
+  "ztst52afrwl01cnc001": "WILLOWS_TST52A_BLACKBIRD",
+  "ztst52afrwl01cnc002": "WILLOWS_TST52A_BLACKBIRD",
+  "ztst52bfrwl01cnc001": "WILLOWS_TST52B_BLACKBIRD",
+  "ztst52bfrwl01cnc002": "WILLOWS_TST52B_BLACKBIRD",
+  "": ""
+}
+
+## DYNAMIC_START
+## STANDARD
+#### JSA LB VIP
+JSA_LB_VIP: {
+  "zsde1frwl01tst001": "10.20.32.3",
+  "zsde1frwl01tst002": "10.20.32.3",
+  "ztst06frwl01tst001": "10.20.32.3",
+  "ztst06frwl01tst002": "10.20.32.3",
+  "ztst52afrwl01cnc001": "10.20.128.60",
+  "ztst52afrwl01cnc002": "10.20.128.60",
+  "ztst52bfrwl01cnc001": "10.20.144.60",
+  "ztst52bfrwl01cnc002": "10.20.144.60",
+  "": ""
+}
+#### FXP0 - MGMT
+INT0: "fxp0"
+INT0_IP_V4_MASK: {
+  "zsde1frwl01tst001": "23",
+  "zsde1frwl01tst002": "23",
+  "ztst06frwl01tst001": "25",
+  "ztst06frwl01tst002": "25",
+  "ztst52afrwl01cnc001": "26",
+  "ztst52afrwl01cnc002": "26",
+  "ztst52bfrwl01cnc001": "26",
+  "ztst52bfrwl01cnc002": "26",
+  "": ""
+}
+INT0_IP_V4_GW: {
+  "zsde1frwl01tst001": "172.20.216.1",
+  "zsde1frwl01tst002": "172.20.216.1",
+  "ztst06frwl01tst001": "10.10.169.129",
+  "ztst06frwl01tst002": "10.10.169.129",
+  "ztst52afrwl01cnc001": "10.10.81.193",
+  "ztst52afrwl01cnc002": "10.10.81.193",
+  "ztst52bfrwl01cnc001": "10.10.86.65",
+  "ztst52bfrwl01cnc002": "10.10.86.65",
+  "": ""
+}
+#### GE-0/0/0 - PROTECTED_NET_1
+INT1: "ge-0/0/0"
+INT1_IP_V4: {
+  "zsde1frwl01tst001": "10.10.82.16",
+  "zsde1frwl01tst002": "10.10.82.17",
+  "ztst06frwl01tst001": "10.10.82.16",
+  "ztst06frwl01tst002": "10.10.82.17",
+  "ztst52afrwl01cnc001": "10.10.82.16",
+  "ztst52afrwl01cnc002": "10.10.64.17",
+  "ztst52bfrwl01cnc001": "10.10.87.16",
+  "ztst52bfrwl01cnc002": "10.10.87.17",
+  "": ""
+}
+INT1_IP_V4_MASK: {
+  "zsde1frwl01tst001": "24",
+  "zsde1frwl01tst002": "24",
+  "ztst06frwl01tst001": "24",
+  "ztst06frwl01tst002": "24",
+  "ztst52afrwl01cnc001": "24",
+  "ztst52afrwl01cnc002": "24",
+  "ztst52bfrwl01cnc001": "24",
+  "ztst52bfrwl01cnc002": "24",
+  "": ""
+}
+INT1_IP_V4_GW: {
+  "zsde1frwl01tst001": "10.10.82.1",
+  "zsde1frwl01tst002": "10.10.82.1",
+  "ztst06frwl01tst001": "10.10.82.1",
+  "ztst06frwl01tst002": "10.10.82.1",
+  "ztst52afrwl01cnc001": "10.10.82.1",
+  "ztst52afrwl01cnc002": "10.10.82.1",
+  "ztst52bfrwl01cnc001": "10.10.87.1",
+  "ztst52bfrwl01cnc002": "10.10.87.1",
+  "": ""
+}
+#### GE-0/0/1 - PROTECTED_NET_2
+INT2: "ge-0/0/1"
+INT2_IP_V4: {
+  "zsde1frwl01tst001": "10.10.83.16",
+  "zsde1frwl01tst002": "10.10.83.17",
+  "ztst06frwl01tst001": "10.10.83.16",
+  "ztst06frwl01tst002": "10.10.83.17",
+  "ztst52afrwl01cnc001": "10.10.83.16",
+  "ztst52afrwl01cnc002": "10.10.83.17",
+  "ztst52bfrwl01cnc001": "10.10.86.144",
+  "ztst52bfrwl01cnc002": "10.10.86.145",
+  "": ""
+}
+INT2_IP_V4_MASK: {
+  "zsde1frwl01tst001": "24",
+  "zsde1frwl01tst002": "24",
+  "ztst06frwl01tst001": "24",
+  "ztst06frwl01tst002": "24",
+  "ztst52afrwl01cnc001": "27",
+  "ztst52afrwl01cnc002": "27",
+  "ztst52bfrwl01cnc001": "27",
+  "ztst52bfrwl01cnc002": "27",
+  "": ""
+}
+INT2_IP_V4_GW: {
+  "zsde1frwl01tst001": "10.10.83.1",
+  "zsde1frwl01tst002": "10.10.83.1",
+  "ztst06frwl01tst001": "10.10.83.1",
+  "ztst06frwl01tst002": "10.10.83.1",
+  "ztst52afrwl01cnc001": "10.10.83.1",
+  "ztst52afrwl01cnc002": "10.10.83.1",
+  "ztst52bfrwl01cnc001": "10.10.86.129",
+  "ztst52bfrwl01cnc002": "10.10.86.129",
+  "": ""
+}
+#### GE-0/0/2 - DIRECT_NET_1
+INT3: "ge-0/0/2"
+INT3_IP_V4: {
+  "zsde1frwl01tst001": "10.10.81.134",
+  "zsde1frwl01tst002": "10.10.81.135",
+  "ztst06frwl01tst001": "10.10.81.134",
+  "ztst06frwl01tst002": "10.10.81.135",
+  "ztst52afrwl01cnc001": "10.10.81.134",
+  "ztst52afrwl01cnc002": "10.10.81.135",
+  "ztst52bfrwl01cnc001": "10.10.86.6",
+  "ztst52bfrwl01cnc002": "10.10.86.7",
+  "": ""
+}
+INT3_IP_V4_MASK: {
+  "zsde1frwl01tst001": "24",
+  "zsde1frwl01tst002": "24",
+  "ztst06frwl01tst001": "24",
+  "ztst06frwl01tst002": "24",
+  "ztst52afrwl01cnc001": "26",
+  "ztst52afrwl01cnc002": "26",
+  "ztst52bfrwl01cnc001": "26",
+  "ztst52bfrwl01cnc002": "26",
+  "": ""
+}
+#### GE-0/0/3 - HSL
+INT4: "ge-0/0/3"
+INT4_IP_V4: {
+  "zsde1frwl01tst001": "10.20.128.8",
+  "zsde1frwl01tst002": "10.20.128.9",
+  "ztst06frwl01tst001": "10.20.128.8",
+  "ztst06frwl01tst002": "10.20.128.9",
+  "ztst52afrwl01cnc001": "10.20.128.8",
+  "ztst52afrwl01cnc002": "10.20.128.9",
+  "ztst52bfrwl01cnc001": "10.20.144.44",
+  "ztst52bfrwl01cnc002": "10.20.144.45",
+  "": ""
+}
+INT4_IP_V4_MASK: {
+  "zsde1frwl01tst001": "24",
+  "zsde1frwl01tst002": "24",
+  "ztst06frwl01tst001": "24",
+  "ztst06frwl01tst002": "24",
+  "ztst52afrwl01cnc001": "24",
+  "ztst52afrwl01cnc002": "24",
+  "ztst52bfrwl01cnc001": "24",
+  "ztst52bfrwl01cnc002": "24",
+  "": ""
+}
+## PLATFORM_SPECIFIC
+## DYNAMIC_END

@@ -1,0 +1,50 @@
+################################################################################
+
+{% for PREFIX in PROTECTED_NET %}
+{% if PROTECTED_NET %}
+
+{% endif %}
+{% endfor %}
+
+################################################################################
+
+{% set count = namespace(a=0) %}
+{% for PREFIX in PROTECTED_NET %}
+{% if PROTECTED_NET %}
+{% set count.a = count.a + 1 %}
+{{ count.a }}
+                {
+                  "name" : "{{ PREFIX.name }}_{{ loop.index }}",
+                  "address-type" : "NETWORK",
+                  "ip-address" : "{{ PREFIX.prefix }}"
+                }
+{% endif %}
+{% endfor %}
+
+################################################################################
+
+{% set count = namespace(ipv4=0, ipv6=0) %}
+{% for PREFIX in PROTECTED_NET %}
+{% if PROTECTED_NET %}
+{% if PREFIX.inet == 4 %}
+{% set count.ipv4 = count.ipv4 + 1 %}
+{{ count.ipv4 }}
+                {
+                  "name" : "{{ PREFIX.name }}_V{{ PREFIX.inet }}_{{ count.ipv4 }}",
+                  "address-type" : "NETWORK",
+                  "ip-address" : "{{ PREFIX.prefix }}"
+                }
+{% endif %}
+{% if PREFIX.inet == 6 %}
+{% set count.ipv6 = count.ipv6 + 1 %}
+{{ count.ipv6 }}
+                {
+                  "name" : "{{ PREFIX.name }}_V{{ PREFIX.inet }}_{{ count.ipv6 }}",
+                  "address-type" : "NETWORK",
+                  "ip-address" : "{{ PREFIX.prefix }}"
+                }
+{% endif %}
+{% endif %}
+{% endfor %}
+
+################################################################################

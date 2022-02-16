@@ -1,0 +1,8 @@
+{% for X in OUTPUTCREATEADDRESS %}
+{% if OUTPUTCREATEADDRESS %}
+          <member>
+          <name>{{ X.json.address.name }}</name>
+          <id>{{ X.json.address.uuid }}</id>
+          </member>
+{% endif %}
+{% endfor %}

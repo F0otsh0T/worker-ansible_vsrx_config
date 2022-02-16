@@ -1,0 +1,20 @@
+---
+################################################################################
+# YAML with Tasks - By Automation User // MyUser
+################################################################################
+#
+################################################################################
+#  tasks:
+##########
+#- name: JUNOSSpaceConnectivityTest
+#  include_role:
+#    name: 00-common
+#    tasks_from: galaxy-wait_for_conn_30.yml
+- name: JUNOSSpaceAssignPolicy
+  include_tasks: galaxy_uri_assign_policy.yml
+  tags:
+    - JUNOSSpaceAssignPolicy
+  register: assignpolicy
+- name: PrintAssignPolicy
+  debug:
+    msg: "{{ assignpolicy }}"

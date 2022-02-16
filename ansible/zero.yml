@@ -1,0 +1,35 @@
+---
+################################################################################
+# Ansible Playbook YAML - By Automation User // MyUser
+################################################################################
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+################################################################################
+
+################################################################################
+# HA/Active-Active Initial Config
+################################################################################
+- name: 99-JuniperJUNOSConfigZero
+  connection: local
+  gather_facts: true
+  hosts: firewall
+#  hosts: all
+#  hosts: zXXXXXfrwrl01cncXXX
+  roles:
+    - Juniper.junos
+    - 99-cfgzero
+#  serial: 1
+  serial: 0
+  tags:
+    - 99-cfgzero
+    - zero
+  vars_files:
+    - group_vars/all/vars.yml

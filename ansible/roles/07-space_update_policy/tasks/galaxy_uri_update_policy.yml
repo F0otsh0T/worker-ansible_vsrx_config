@@ -1,0 +1,291 @@
+---
+################################################################################
+# Nested YAML with Tasks - By Automation User // MyUser
+################################################################################
+# JUNOS Space EMS Tasks:
+#   - JUNOSSPACEUPDATEPOLICY: Log in to JUNOS Space & Update Policy to Devices
+################################################################################
+#  Tasks:
+################################################################################
+
+################################################################################
+# Check Connectivity
+################################################################################
+  - name: CheckNetConnectivity
+    wait_for:
+      host: "{{ SPACE_HOST }}"
+      port: "{{ SPACE_API_PORT }}"
+      timeout: 30
+
+################################################################################
+# Galaxy.URI Juniper JUNOS Space Update Security Policy to Device
+################################################################################
+# 01. LOGIN TO JUNOS SPACE
+################################################################################
+  - name: JUNOSSpace-Login
+    block:
+    - name: JUNOSSPACELOGIN
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 200
+        follow_redirects: all
+        user: "{{ SPACE_API_LOGIN_AUTH_USER }}"
+        password: "{{ SPACE_API_LOGIN_AUTH_PASS }}"
+        return_content: yes
+        validate_certs: no
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+      register: SPACELOGIN
+    - name: Debug-JUNOSSpace-Login-JSON
+      debug:
+        var: SPACELOGIN.json
+#        verbosity: 1
+    - name: Debug-JUNOSSpace-Login
+      debug:
+        msg: "{{ SPACELOGIN }}"
+    - name: Copy-Debug-JUNOSSpace-Login
+      copy:
+        content: "{{ SPACELOGIN }}"
+        dest: "{{ DEBUG_DIR }}deb.07_01-junos_space_login_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: Output-Debug-JUNOSSpace-Login
+      copy:
+        content: "{{ SPACELOGIN.set_cookie }}"
+        dest: "{{ DEBUG_DIR }}output.07_01-junos_space_login_set_cookie{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: SetFact-Cookie
+      set_fact:
+        LOGIN_COOKIE: "{{ SPACELOGIN.set_cookie }}"
+
+################################################################################
+# 02. GET DEVICE ID(S)
+################################################################################
+  - name: JUNOSSpace-GetDevices
+    block:
+    - name: JUNOSSPACEGETDEVICES
+      uri:
+#        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/device-management/devices?filter=(name%20eq%20'{{ inventory_hostname }}')"
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/device-management/devices?filter=(name%20contains%20'z{{ LOCATION }}{{ VVVV }}01{{ PPP }}')"
+        method: GET
+        validate_certs: no
+        headers:
+          Accept: application/vnd.juniper.sd.device-management.devices+json;version=2;q=0.02
+#          Cookie: "{{ SpaceLogin.set_cookie }}"
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: SpaceGetDevices
+    - name: Debug-JUNOSSpace-GetDevices-JSON
+      debug:
+        var: SpaceGetDevices.json
+#        verbosity: 1
+    - name: Debug-JUNOSSpace-GetDevices
+      debug:
+        msg: "{{ SpaceGetDevices }}"
+    - name: Copy-Debug-JUNOSSpace-GetDevices
+      copy:
+        content: "{{ SpaceGetDevices }}"
+        dest: "{{ DEBUG_DIR }}deb.07_02-junos_space_get_devices_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+    - name: Set-SD-DeviceID
+      set_fact:
+#        CONTEXT_DEVICE_ID: "{{ SpaceGetDevices.json.devices.device[0].id }}"
+        CONTEXT_DEVICE_ID: "{{ SpaceGetDevices.json.devices.device }}"
+    - name: Debug-Set-SD-DeviceID
+      debug:
+        msg: "{{ CONTEXT_DEVICE_ID }}"
+    - name: Copy-Debug-Set-SD-DeviceID
+      copy:
+        content: "{{ CONTEXT_DEVICE_ID }}"
+        dest: "{{ OUTPUT_DIR }}output.07_02-junos_space_get_devices_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+
+################################################################################
+# 03. GET POLICY ID
+################################################################################
+
+  - name: JUNOSSpace-GetPolicy
+    uri:
+      url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/policy-management/firewall/policies?filter=(name%20eq%20'{{ SPACE_API_POLICY_NAME }}')"
+      method: GET
+      status_code: 200
+      follow_redirects: all
+      return_content: yes
+      body_format: json
+      validate_certs: no
+      headers:
+        Accept: application/vnd.juniper.sd.policy-management.firewall.policies+json;version=2;q=0.02
+        Cookie: "{{ LOGIN_COOKIE }}"
+#        Cookie: "{{ SPACELOGIN.set_cookie }}"
+    register: SpaceGetPolicyID
+
+  - name: Debug-JUNOSSpace-GetPolicy-MSG
+    debug:
+      msg: "{{ SpaceGetPolicyID }}"
+
+  - name: Debug-JUNOSSpace-GetPolicy-VAR
+    debug:
+      var: SpaceGetPolicyID
+#      verbosity: 1
+
+  - name: Copy-Debug-JUNOSSpace-GetPolicy
+    copy:
+      content: "{{ SpaceGetPolicyID }}"
+      dest: "{{ DEBUG_DIR }}deb.07_03-junos_space_get_policy_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+  - name: Set-SD-PolicyID
+    set_fact:
+      CONTEXT_POLICY_ID: "{{ SpaceGetPolicyID.json.policies.policy[0].id }}"
+
+  - name: Debug-Set-SD-PolicyID
+    debug:
+      msg: "{{ CONTEXT_POLICY_ID }}"
+
+  - name: Output-Debug-Set-SD-PolicyID
+    copy:
+      content: "{{ CONTEXT_POLICY_ID }}"
+      dest: "{{ OUTPUT_DIR }}output.07_03-junos_space_get_policy_id_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+
+################################################################################
+# 04. FORMAT DEVICE ID VARIABLES INTO JSON & XML BODY FOR SPACE API UPDATE
+################################################################################
+  - name: FORMAT_DEVICE_ID_JSON_XML_BODY
+    block:
+      ################################################################################
+      # TEMPLATE METHOD OUTPUT TO DESTINATION FILE
+      ################################################################################
+    - name: FORMATDEVICEIDJSON
+      template:
+        src: "roles/{{ DEPLOYMENT_TYPE }}/templates/device_id_json.j2"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-device_id_json.{{ inventory_hostname }}"
+      register: OUTPUTFORMATDEVICEIDJSON
+    - name: PRINTOUTPUTFORMATDEVICEIDJSON
+      debug:
+        var: OUTPUTFORMATDEVICEIDJSON
+    - name: COPYOUTPUTFORMATDEVICEIDJSON
+      copy:
+        content: "{{ OUTPUTFORMATDEVICEIDJSON }}"
+        dest: "{{ DEBUG_DIR }}deb.07_04-junos_space_format_devices_json_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+    - name: FORMATDEVICEIDXML
+      template:
+        src: "roles/{{ DEPLOYMENT_TYPE }}/templates/device_id_xml.j2"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-device_id_xml.{{ inventory_hostname }}"
+      register: OUTPUTFORMATDEVICEIDXML
+    - name: PRINTOUTPUTFORMATDEVICEIDXML
+      debug:
+        var: OUTPUTFORMATDEVICEIDXML
+    - name: COPYOUTPUTFORMATDEVICEIDXML
+      copy:
+        content: "{{ OUTPUTFORMATDEVICEIDXML }}"
+        dest: "{{ DEBUG_DIR }}deb.07_04-junos_space_format_devices_xml_{{ CONFIG_TYPE}}.{{ inventory_hostname }}"
+      ################################################################################
+      # VARIABLE: SET FROM FILE READ
+      ################################################################################
+    - name: READJSONFILE
+      set_fact:
+        READJSONFILE: "{{ lookup('file', '{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-device_id_json.{{ inventory_hostname }}') }}"
+    - name: DEBUGREADJSONFILE
+      debug:
+        var: READJSONFILE
+    - name: COPYREADJSONFILE
+      copy:
+        content: "{{ READJSONFILE }}"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-var_device_json_file.{{ inventory_hostname }}"
+    - name: READXMLILE
+      set_fact:
+        READJSONFILE: "{{ lookup('file', '{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-device_id_xml.{{ inventory_hostname }}') }}"
+    - name: DEBUGREADXMLFILE
+      debug:
+        var: READXMLFILE
+    - name: COPYREADXMLFILE
+      copy:
+        content: "{{ READJSONFILE }}"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-var_device_xml_file.{{ inventory_hostname }}"
+      ################################################################################
+      # VARIABLE: SET DIRECT FROM TEMPLATE
+      ################################################################################
+    - name: READJSONTEMPLATE
+      set_fact:
+        READJSONTEMPLATE: "{{ lookup('template', 'roles/{{ DEPLOYMENT_TYPE }}/templates/device_id_json.j2') }}"
+    - name: DEBUGREADJSONTEMPLATE
+      debug:
+        var: READJSONTEMPLATE
+    - name: COPYREADJSONTEMPLATE
+      copy:
+        content: "{{ READJSONTEMPLATE }}"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-var_device_json_template.{{ inventory_hostname }}"
+    - name: READXMLTEMPLATE
+      set_fact:
+        READXMLTEMPLATE: "{{ lookup('template', 'roles/{{ DEPLOYMENT_TYPE }}/templates/device_id_xml.j2') }}"
+    - name: DEBUGREADXMLTEMPLATE
+      debug:
+        var: READXMLTEMPLATE
+    - name: COPYREADXMLTEMPLATE
+      copy:
+        content: "{{ READXMLTEMPLATE }}"
+        dest: "{{ OUTPUT_DIR }}{{ CONFIG_TYPE}}-var_device_xml_template.{{ inventory_hostname }}"
+
+################################################################################
+# 05. UPDATE POLICY TO DEVICE
+################################################################################
+  - name: JUNOSSpace-UpdatePolicy
+    block:
+    - name: JUNOSSPACEUPDATEDEVICEPOLICY
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/juniper/sd/device-management/update-devices"
+        method: POST
+        status_code: 200, 204
+        follow_redirects: all
+        return_content: yes
+        validate_certs: no
+        headers:
+#          content-type: application/vnd.juniper.sd.device-management.update-devices+json;version=1;charset=UTF-8
+          content-type: application/vnd.juniper.sd.device-management.update-devices+xml;version=1;charset=UTF-8
+          Cookie: "{{ LOGIN_COOKIE }}"
+#        body_format: json
+#        body: "{{ READJSONTEMPLATE }}"
+        body: "{{ READXMLTEMPLATE }}"
+#        body: >
+#          <?xml version="1.0" encoding="UTF-8"?>
+#          <update-devices>
+#              <sd-ids>
+#                  <id></id>
+#                  <id></id>
+#              </sd-ids>
+#              <service-types>
+#                  <service-type>POLICY</service-type>
+#              </service-types>
+#              <update-options>
+#                  <enable-policy-rematch-srx-only>true</enable-policy-rematch-srx-only>
+#                  <preserve-session-sc-os>true</preserve-session-sc-os>
+#              </update-options>
+#          </update-devices>
+      register: SpaceUpdatePolicy
+#    - name: Debug-JUNOSSpace-UpdatePolicy-MSG
+#      debug:
+#        msg: "{{ SpaceUpdatePolicy }}"
+    - name: Debug-JUNOSSpace-UpdatePolicy-VAR
+      debug:
+        var: SpaceUpdatePolicy
+#        verbosity: 1
+    - name: Copy-Debug-JUNOSSpace-UpdatePolicy
+      copy:
+        content: "{{ SpaceUpdatePolicy }}"
+        dest: "{{ DEBUG_DIR }}deb.07_05-junos_space_update_policy_{{ CONFIG_TYPE }}.{{ inventory_hostname }}"
+
+################################################################################
+# 06. LOGOUT
+################################################################################
+#
+  - name: JUNOS_SPACE//LOGOUT
+    block:
+    - name: JUNOSSpace-Logout
+      uri:
+        url: "https://{{ SPACE_HOST }}:{{ SPACE_API_PORT }}/api/space/user-management/logout"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        headers:
+          Cookie: "{{ LOGIN_COOKIE }}"
+      register: OUTPUTLOGOUT
+    - name: DEBUGLOGOUT
+      debug:
+        var: OUTPUTLOGOUT
+#    when:
+    ignore_errors: yes

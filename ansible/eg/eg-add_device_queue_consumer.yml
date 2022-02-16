@@ -1,0 +1,99 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINT-OUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: SETFACT-DISCOVERYID
+      set_fact:
+        DISCOVERY_TASK_ID: "7676521"
+
+    - name: DEBUG-SETFACT-DISCOVEYID
+      debug:
+        msg: "{{ DISCOVERY_TASK_ID }}"
+
+    - name: CREATE-QUEUECONSUMER
+      uri:
+        url: "https://10.60.164.206:443/api/hornet-q/queues/jms.queue.{{SPACE_TEST_QUEUE}}/pull-consumers"
+        method: POST
+        status_code: 201, 412
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        force_basic_auth: yes
+        user: {{username}}
+        password: "@!T3stME!"
+        headers:
+          content-type: application/xml
+      register: OUTPUTQUEUECONSUMER
+
+    - name: DEBUG-QUEUECONSUMER
+      debug:
+        msg: "{{ OUTPUTQUEUECONSUMER }}"
+
+    - name: SETFACT-QUEUECONSUMER
+      set_fact:
+        QUEUECONSUMER_URL: "{{ OUTPUTQUEUECONSUMER.msg_consume_next }}"
+
+    - name: DEBUG-SETFACT-QUEUECONSUMER
+      debug:
+        msg: "{{ QUEUECONSUMER_URL }}"
+
+    - name: CHECKSTATUS
+      uri:
+        url: "{{ QUEUECONSUMER_URL }}"
+        method: POST
+        status_code: 200
+        validate_certs: no
+        follow_redirects: all
+        return_content: yes
+        body_format: json
+        force_basic_auth: yes
+        user: {{username}}
+        password: "@!T3stME!"
+        headers:
+          content-type: application/hornetq.jms.queue+xml
+      register: OUTPUTCHECKSTATUS
+
+
+    - name: DEBUG-CHECKSTATUS
+      debug:
+        msg: "{{ OUTPUTCHECKSTATUS }}"
+
+
+
+
+
+
+
+
+
+

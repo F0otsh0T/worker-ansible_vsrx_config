@@ -1,0 +1,146 @@
+---
+- name: TEST
+  connection: local
+#  gather_facts: true
+  gather_facts: false
+  hosts: all
+  serial: 0
+
+  tasks:
+    - name: LOGIN
+      uri:
+        url: "https://10.60.164.206:443/api/space/user-management/login"
+        method: POST
+        force_basic_auth: yes
+        status_code: 302, 200
+        validate_certs: no
+        follow_redirects: all
+        user: {{username}}
+        password: "@!T3stME!"
+        return_content: yes
+        body_format: json
+        headers:
+          Accept: application/vnd.net.juniper.space.user-management.user-ref+json;version=1
+#          Content-Type: "application/json"
+      register: OUTPUTLOGIN
+
+    - name: PRINTOUTPUTLOGIN
+      debug:
+#        msg: "{{ OUTPUTLOGIN }}"
+#        msg: "{{ OUTPUTLOGIN.json }}"
+        var: OUTPUTLOGIN
+#        var: OUTPUTLOGIN.json
+#        verbosity: 1
+
+    - name: CREATEADDRESSGROUP
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+          Content-Type: "application/vnd.juniper.sd.address-management.address+json;version=1;charset=UTF-8"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+            "address" : {
+              "name" : "API_ADDRESS_GROUP",
+              "address-type" : "GROUP",
+              "definition-type" : "CUSTOM"
+            }
+          }
+  #    with_dict: {{ PROTECTED_NET_DICT }}
+      register: OUTPUTCREATEADDRESSGROUP
+
+    - name: PRINTOUTPUTCREATEADDRESSGROUP
+      debug:
+        var: OUTPUTCREATEADDRESSGROUP
+
+    - name: SETFACTADDRESSGROUPID
+      set_fact:
+        ADDRESSGROUP_ID: "{{ OUTPUTCREATEADDRESSGROUP.json.address.id }}"
+
+    - name: SETFACTADDRESSGROUPNAME
+      set_fact:
+        ADDRESSGROUP_NAME: "{{ OUTPUTCREATEADDRESSGROUP.json.address.name }}"
+
+    - name: CREATEADDRESS
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses"
+        method: POST
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+          Content-Type: "application/vnd.juniper.sd.address-management.address+json;version=1;charset=UTF-8"
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+            "address" : {
+              "name" : "API_ADDRESS",
+              "address-type" : "NETWORK",
+              "ip-address" : "192.168.101.0/24",
+              "address-version" : "IPV4",
+              "definition-type" : "CUSTOM"
+            }
+          }
+  #    with_dict: {{ PROTECTED_NET_DICT }}
+      register: OUTPUTCREATEADDRESS
+
+    - name: PRINTOUTPUTCREATEADDRESS
+      debug:
+        var: OUTPUTCREATEADDRESS
+
+    - name: SETFACTADDRESSID
+      set_fact:
+        ADDRESS_ID: "{{ OUTPUTCREATEADDRESS.json.address.id }}"
+
+    - name: SETFACTADDRESSNAME
+      set_fact:
+        ADDRESS_NAME: "{{ OUTPUTCREATEADDRESS.json.address.name }}"
+
+    - name: MODIFYADDRESSGROUP
+      uri:
+        url: "https://10.60.164.206:443/api/juniper/sd/address-management/addresses/{{ ADDRESSGROUP_ID }}"
+        method: PUT
+        follow_redirects: all
+        return_content: yes
+        status_code: 200, 500
+        validate_certs:  no
+        headers:
+          Accept: "application/vnd.juniper.sd.address-management.address+json;version=1;q=0.01"
+          Content-Type: "application/vnd.juniper.sd.address-management.address+json;version=1;charset=UTF-8"
+          Access-Control: ModifyAddress
+          Cookie: "{{ OUTPUTLOGIN.set_cookie }}"
+        body_format: json
+        body: >
+          {
+            "address" : {
+              "name" : "{{ ADDRESSGROUP_NAME }}",
+              "address-type" : "GROUP",
+              "definition-type" : "CUSTOM",
+              "id" : "{{ ADDRESSGROUP_ID }}",
+              "members" : {
+                "member" : [ {
+                  "name" : "{{ item.key }} ",
+                  "address-type" : "NETWORK",
+                  "ip-address" : "{{ item.value }}"
+                } ]
+              }
+            }
+          }
+      with_dict: "{{ PROTECTED_NET_DICT }}"
+      register: OUTPUTMODIFYADDRESSGROUP
+
+    - name: PRINTOUTPUTMODIFYADDRESSGROUP
+      debug:
+        var: OUTPUTMODIFYADDRESSGROUP
+
+
