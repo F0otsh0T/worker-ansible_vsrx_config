@@ -12,7 +12,7 @@ This version of the playbooks is intended to work with Ansible 2.4.x and Juniper
 * Juniper.junos Ansible Modules version 2.0.2
 * Ansible 2.4.x
 * MechUser Accounts (with Admin access to MNS) @ https://www.e-access.att.com/src/MiscIDSponshipBulkServlet
-  - Ansible Juniper_OS Modules: Local vSRX account or GTAC account with SSH Keys configured.  This will be used to perform operations on the vSRX itself during the configuration
+  - Ansible Juniper_OS Modules: Local vSRX account or TACACS account with SSH Keys configured.  This will be used to perform operations on the vSRX itself during the configuration
 
 * Create SSH Keys for MechUser account on Linux host
   - Naming of Public and Private keys are important due to a bug in the Ansible Juniper.junos module ( https://github.com/Juniper/ansible-junos-stdlib/issues/85 ). The bug the prevents usage of keys named anything other than:
